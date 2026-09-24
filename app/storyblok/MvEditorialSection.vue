@@ -54,9 +54,9 @@ const aspectClass = computed(() => ({
 .mv-editorial--cream { background: #f5f3ef; }
 .mv-editorial--light-grey { background: #fafafa; }
 .mv-editorial__container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 28px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;

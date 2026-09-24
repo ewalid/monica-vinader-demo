@@ -247,11 +247,11 @@ watch(route, () => {
 }
 
 body {
-  @apply pt-32 text-primary-dark font-body;
+  @apply pt-24 text-primary-dark font-body;
 }
 
 section.page-section {
-  @apply py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32;
+  @apply py-10 sm:py-12 md:py-14 lg:py-16;
 }
 
 section.page-section.bg-white + section.page-section.bg-white,

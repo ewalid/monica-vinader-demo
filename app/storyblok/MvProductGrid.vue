@@ -97,17 +97,18 @@ const colClass = computed(() => {
 
 <style scoped>
 .mv-pgrid__container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 28px;
 }
 .mv-pgrid__headline {
-  font-family: var(--font-family-display, serif);
-  font-size: clamp(22px, 3vw, 32px);
-  font-weight: 300;
-  text-align: center;
-  letter-spacing: 0.04em;
-  margin-bottom: 40px;
+  font-family: var(--font-family-body, sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
   color: #1a1a1a;
 }
 .mv-pgrid__grid {

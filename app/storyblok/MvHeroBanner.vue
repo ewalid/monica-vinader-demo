@@ -46,13 +46,13 @@ defineProps({ blok: Object });
 .mv-hero {
   position: relative;
   width: 100%;
-  min-height: 520px;
+  min-height: 560px;
   overflow: hidden;
   display: flex;
   align-items: center;
 }
 .mv-hero--full {
-  min-height: 100vh;
+  min-height: calc(100vh - 92px);
 }
 .mv-hero__picture {
   position: absolute;
