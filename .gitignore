@@ -1,0 +1,14 @@
+.env
+.env.*
+node_modules/
+.nuxt/
+.output/
+dist/
+scripts/downloaded-assets/
+references/screenshots/
+*.log
+.DS_Store
+.vercel
+.env*
+localhost-key.pem
+localhost.pem

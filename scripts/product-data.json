@@ -1,0 +1,577 @@
+{
+  "products": [
+    {
+      "title": "Siren Medium Pavé Diamond Tennis Bracelet",
+      "handle": "siren-medium-pave-diamond-tennis-bracelet",
+      "description": "A modern take on a classic, this 14ct yellow gold tennis bracelet is set with brilliant-cut pavé diamonds totalling 2.4ct. The fluid Siren silhouette catches light from every angle. Length: 17.5cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "siren-diamond", "womens", "bestseller", "fine-jewellery"],
+      "priceGBP": 2950,
+      "material": "14ct Yellow Gold with 2.4ct Diamonds",
+      "careInstructions": "Store in the provided box when not wearing. Clean with a soft cloth. Avoid contact with perfume and chemicals.",
+      "sustainability": "Responsibly sourced diamonds, certified through the Kimberley Process. Recycled gold."
+    },
+    {
+      "title": "Siren Diamond Stud Earrings",
+      "handle": "siren-diamond-stud-earrings",
+      "description": "Timeless stud earrings in 14ct yellow gold, each set with a 0.15ct brilliant-cut diamond. The signature Siren setting allows maximum light to enter the stone. Sold as a pair.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "siren-diamond", "womens", "new-arrival", "fine-jewellery"],
+      "priceGBP": 495,
+      "material": "14ct Yellow Gold with 0.3ct Diamonds (pair)",
+      "careInstructions": "Store in the provided box when not wearing. Clean with a soft cloth. Avoid contact with perfume and chemicals.",
+      "sustainability": "Responsibly sourced diamonds, certified through the Kimberley Process."
+    },
+    {
+      "title": "Siren Diamond Pendant Necklace",
+      "handle": "siren-diamond-pendant-necklace",
+      "description": "A stunning pendant featuring a 0.5ct brilliant-cut diamond set in the signature Siren bezel. Suspended on a fine 14ct yellow gold chain. Adjustable length: 41-46cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "siren-diamond", "womens", "fine-jewellery"],
+      "priceGBP": 1250,
+      "material": "14ct Yellow Gold with 0.5ct Diamond",
+      "careInstructions": "Store flat in the provided pouch. Clean with a soft cloth.",
+      "sustainability": "Responsibly sourced diamonds. Recycled 14ct gold."
+    },
+    {
+      "title": "Siren Diamond Eternity Ring",
+      "handle": "siren-diamond-eternity-ring",
+      "description": "A full eternity ring in 14ct yellow gold, set with brilliant-cut diamonds totalling 1.2ct around the entire band. The Siren setting creates a seamless flow of light.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "siren-diamond", "womens", "fine-jewellery"],
+      "priceGBP": 1850,
+      "variants": [
+        { "title": "XS", "sku": "SR-DER-XS" },
+        { "title": "S", "sku": "SR-DER-S" },
+        { "title": "M", "sku": "SR-DER-M" },
+        { "title": "L", "sku": "SR-DER-L" }
+      ],
+      "material": "14ct Yellow Gold with 1.2ct Diamonds",
+      "careInstructions": "Remove before washing hands. Store in the provided ring box.",
+      "sustainability": "Responsibly sourced diamonds, certified through the Kimberley Process. Recycled gold."
+    },
+    {
+      "title": "Siren Diamond Huggie Earrings",
+      "handle": "siren-diamond-huggie-earrings",
+      "description": "Delicate huggie hoops in 14ct yellow gold, each set with pavé diamonds totalling 0.1ct. The hinged clasp ensures a secure, comfortable fit. Diameter: 12mm.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "siren-diamond", "womens", "new-arrival", "fine-jewellery"],
+      "priceGBP": 395,
+      "material": "14ct Yellow Gold with 0.2ct Diamonds (pair)",
+      "careInstructions": "Store in the provided box. Clean with a soft cloth.",
+      "sustainability": "Responsibly sourced diamonds. Recycled gold."
+    },
+    {
+      "title": "Alta Gold Necklace",
+      "handle": "alta-gold-necklace",
+      "description": "A refined chain necklace in 14ct yellow gold with the signature Alta textured finish. A versatile everyday piece that layers beautifully. Adjustable length: 41-51cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "womens", "bestseller", "fine-jewellery"],
+      "priceGBP": 650,
+      "material": "14ct Yellow Gold",
+      "careInstructions": "Store flat to prevent tangling. Polish with a gold cloth.",
+      "sustainability": "Crafted from recycled 14ct gold."
+    },
+    {
+      "title": "Nura Gold Reef Ring",
+      "handle": "nura-gold-reef-ring",
+      "description": "Inspired by natural coral formations, the Nura Reef Ring is sculpted in 14ct yellow gold with an organic, textured surface. A statement piece that's uniquely beautiful.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "womens", "fine-jewellery"],
+      "priceGBP": 450,
+      "variants": [
+        { "title": "XS", "sku": "NR-GRR-XS" },
+        { "title": "S", "sku": "NR-GRR-S" },
+        { "title": "M", "sku": "NR-GRR-M" },
+        { "title": "L", "sku": "NR-GRR-L" }
+      ],
+      "material": "14ct Yellow Gold",
+      "careInstructions": "Polish with a gold cloth. Store in the provided box.",
+      "sustainability": "Crafted from recycled 14ct gold."
+    },
+    {
+      "title": "Riva Gold Diamond Cuff",
+      "handle": "riva-gold-diamond-cuff",
+      "description": "A sleek cuff bracelet in 14ct yellow gold, accented with a single line of pavé diamonds. The open design allows for an adjustable fit. Width: 6mm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "womens", "fine-jewellery"],
+      "priceGBP": 1100,
+      "material": "14ct Yellow Gold with 0.35ct Diamonds",
+      "careInstructions": "Handle with care. Clean with a soft cloth. Avoid bending.",
+      "sustainability": "Responsibly sourced diamonds. Recycled gold."
+    },
+    {
+      "title": "Isla Gold Stacking Ring",
+      "handle": "isla-gold-stacking-ring",
+      "description": "A slim stacking ring in 14ct yellow gold with a hammered finish. Designed to be worn alone or stacked with other Isla rings for a personalised look.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "womens", "bestseller", "fine-jewellery"],
+      "priceGBP": 250,
+      "variants": [
+        { "title": "XS", "sku": "IS-GSR-XS" },
+        { "title": "S", "sku": "IS-GSR-S" },
+        { "title": "M", "sku": "IS-GSR-M" },
+        { "title": "L", "sku": "IS-GSR-L" }
+      ],
+      "material": "14ct Yellow Gold",
+      "careInstructions": "Polish with a gold cloth. Store separately to avoid scratching.",
+      "sustainability": "Crafted from recycled 14ct gold."
+    },
+    {
+      "title": "Alta Capture Charm Necklace",
+      "handle": "alta-capture-charm-necklace",
+      "description": "The original charm necklace: a 14ct yellow gold chain with the signature Alta Capture link that lets you clip on and swap charms. Adjustable length: 41-51cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["14k-gold", "womens", "charm", "fine-jewellery"],
+      "priceGBP": 550,
+      "material": "14ct Yellow Gold",
+      "careInstructions": "Store flat in the provided pouch. Polish with a gold cloth.",
+      "sustainability": "Crafted from recycled 14ct gold."
+    },
+    {
+      "title": "Siren Muse Drop Earrings",
+      "handle": "siren-muse-drop-earrings",
+      "description": "Elegant drop earrings in 18ct gold vermeil, each set with a rose-cut green onyx stone. The organic Siren shape is inspired by the fluidity of water. Length: 35mm.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "bestseller"],
+      "priceGBP": 128,
+      "material": "18ct Gold Vermeil on Sterling Silver with Green Onyx",
+      "careInstructions": "Store in the provided pouch. Avoid prolonged contact with water, perfume, and lotions.",
+      "sustainability": "Crafted with recycled sterling silver and responsibly sourced gemstones."
+    },
+    {
+      "title": "Alta Textured Large Hoop Earrings",
+      "handle": "alta-textured-large-hoop-earrings",
+      "description": "Statement hoop earrings in 18ct gold vermeil with a hand-applied textured finish. Lightweight and comfortable for all-day wear. Diameter: 38mm.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "bestseller"],
+      "priceGBP": 98,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch. Polish with a soft cloth. Avoid contact with water.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Nura Reef Pendant Necklace",
+      "handle": "nura-reef-pendant-necklace",
+      "description": "A sculptural pendant inspired by coral reef formations, cast in 18ct gold vermeil on a fine chain. A conversation-starting piece. Adjustable chain: 41-46cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "new-arrival"],
+      "priceGBP": 148,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store flat in the provided pouch to prevent tangling.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Riva Diamond Bracelet",
+      "handle": "riva-diamond-bracelet",
+      "description": "A delicate chain bracelet in 18ct gold vermeil with a central pavé diamond bar. A timeless everyday piece. Adjustable length: 15-18cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "bestseller"],
+      "priceGBP": 175,
+      "material": "18ct Gold Vermeil on Sterling Silver with 0.05ct Diamonds",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water and chemicals.",
+      "sustainability": "Recycled sterling silver with responsibly sourced diamonds."
+    },
+    {
+      "title": "Linear Friendship Bracelet",
+      "handle": "linear-friendship-bracelet",
+      "description": "The iconic Monica Vinader friendship bracelet. An adjustable cord bracelet with a sleek 18ct gold vermeil bar. The ultimate gift. One size fits all.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "bestseller", "gift-guide", "under-100"],
+      "priceGBP": 65,
+      "material": "18ct Gold Vermeil on Sterling Silver with Silk Cord",
+      "careInstructions": "Remove before swimming or showering. Cord is not water-resistant.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Fiji Bud Gemstone Pendant Necklace",
+      "handle": "fiji-bud-gemstone-pendant-necklace",
+      "description": "A miniature gemstone pendant in 18ct gold vermeil, set with a rose-cut pink quartz. Delicate and feminine. Adjustable chain: 41-46cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "gift-guide", "under-100"],
+      "priceGBP": 85,
+      "material": "18ct Gold Vermeil on Sterling Silver with Pink Quartz",
+      "careInstructions": "Store in the provided pouch. Avoid perfume and water.",
+      "sustainability": "Responsibly sourced gemstones. Recycled sterling silver."
+    },
+    {
+      "title": "Siren Stacking Ring",
+      "handle": "siren-stacking-ring",
+      "description": "A slim stacking ring in 18ct gold vermeil, set with a rose-cut aquamarine stone. Stack with other Siren rings for a personalised look.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "gift-guide", "under-100"],
+      "priceGBP": 70,
+      "variants": [
+        { "title": "XS", "sku": "SN-SR-GV-XS" },
+        { "title": "S", "sku": "SN-SR-GV-S" },
+        { "title": "M", "sku": "SN-SR-GV-M" },
+        { "title": "L", "sku": "SN-SR-GV-L" }
+      ],
+      "material": "18ct Gold Vermeil on Sterling Silver with Aquamarine",
+      "careInstructions": "Store in the provided box. Avoid water and chemicals.",
+      "sustainability": "Responsibly sourced gemstones. Recycled sterling silver."
+    },
+    {
+      "title": "Nura Tiny Keshi Pearl Bracelet",
+      "handle": "nura-tiny-keshi-pearl-bracelet",
+      "description": "An organic-shaped bracelet featuring a tiny keshi pearl set in 18ct gold vermeil. Each pearl is unique. Adjustable length: 15-17cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "new-arrival"],
+      "priceGBP": 110,
+      "material": "18ct Gold Vermeil on Sterling Silver with Keshi Pearl",
+      "careInstructions": "Pearls are organic — avoid perfume, hairspray, and water. Store in the provided pouch.",
+      "sustainability": "Sustainably farmed keshi pearls. Recycled sterling silver."
+    },
+    {
+      "title": "Siren Silver Muse Stud Earrings",
+      "handle": "siren-silver-muse-stud-earrings",
+      "description": "Understated stud earrings in recycled sterling silver, each set with a rose-cut moonstone. The Siren setting maximises the stone's ethereal glow. Sold as a pair.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "womens", "under-50"],
+      "priceGBP": 48,
+      "material": "Recycled Sterling Silver with Moonstone",
+      "careInstructions": "Polish with a silver cloth to maintain shine. Store in the provided pouch.",
+      "sustainability": "Recycled sterling silver. Responsibly sourced moonstone."
+    },
+    {
+      "title": "Alta Silver Chain Necklace",
+      "handle": "alta-silver-chain-necklace",
+      "description": "A signature chain necklace in recycled sterling silver with the Alta textured finish. A wardrobe essential. Adjustable length: 41-51cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "womens", "under-100"],
+      "priceGBP": 95,
+      "material": "Recycled Sterling Silver",
+      "careInstructions": "Store in an anti-tarnish pouch. Polish regularly with a silver cloth.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Linear Silver Friendship Bracelet",
+      "handle": "linear-silver-friendship-bracelet",
+      "description": "The iconic friendship bracelet in recycled sterling silver with a silk cord. Adjustable to fit all wrist sizes. The perfect gift.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "womens", "gift-guide", "under-50"],
+      "priceGBP": 45,
+      "material": "Recycled Sterling Silver with Silk Cord",
+      "careInstructions": "Remove before swimming or showering. Cord is not water-resistant.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Nura Silver Reef Ring",
+      "handle": "nura-silver-reef-ring",
+      "description": "The sculptural Nura Reef design in recycled sterling silver. An organic, textured ring inspired by coral formations.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "womens"],
+      "priceGBP": 75,
+      "variants": [
+        { "title": "XS", "sku": "NR-SRR-XS" },
+        { "title": "S", "sku": "NR-SRR-S" },
+        { "title": "M", "sku": "NR-SRR-M" },
+        { "title": "L", "sku": "NR-SRR-L" }
+      ],
+      "material": "Recycled Sterling Silver",
+      "careInstructions": "Polish with a silver cloth. Store in the provided box.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Siren Silver Thin Cuff",
+      "handle": "siren-silver-thin-cuff",
+      "description": "A slim open cuff in recycled sterling silver with a polished finish. Comfortable and adjustable. Width: 4mm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "womens", "under-100"],
+      "priceGBP": 85,
+      "material": "Recycled Sterling Silver",
+      "careInstructions": "Polish with a silver cloth. Avoid bending.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Alta Men's Textured Chain Bracelet",
+      "handle": "alta-mens-textured-chain-bracelet",
+      "description": "A bold chain bracelet in 18ct gold vermeil with the signature Alta textured finish. Designed for the modern man. Length: 19-21cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "mens", "bestseller"],
+      "priceGBP": 195,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water and chemicals.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Linear Men's Friendship Bracelet",
+      "handle": "linear-mens-friendship-bracelet",
+      "description": "The iconic friendship bracelet reimagined for men. A wider 18ct gold vermeil bar on a woven cord. Adjustable to fit all wrist sizes.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "mens", "gift-guide", "under-100"],
+      "priceGBP": 75,
+      "material": "18ct Gold Vermeil on Sterling Silver with Woven Cord",
+      "careInstructions": "Remove before swimming or showering.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Nura Men's Reef Necklace",
+      "handle": "nura-mens-reef-necklace",
+      "description": "A textured pendant on a silver curb chain, inspired by natural reef formations. A statement piece for the modern man. Chain length: 51-56cm.",
+      "productType": "Necklace",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "mens"],
+      "priceGBP": 145,
+      "material": "Recycled Sterling Silver",
+      "careInstructions": "Polish with a silver cloth. Store flat.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Alta Men's Silver Signet Ring",
+      "handle": "alta-mens-silver-signet-ring",
+      "description": "A contemporary signet ring in recycled sterling silver with the Alta textured finish. A refined everyday piece.",
+      "productType": "Ring",
+      "vendor": "Monica Vinader",
+      "tags": ["silver", "mens"],
+      "priceGBP": 110,
+      "variants": [
+        { "title": "S", "sku": "AM-SSR-S" },
+        { "title": "M", "sku": "AM-SSR-M" },
+        { "title": "L", "sku": "AM-SSR-L" }
+      ],
+      "material": "Recycled Sterling Silver",
+      "careInstructions": "Polish with a silver cloth. Store in the provided box.",
+      "sustainability": "Crafted from recycled sterling silver."
+    },
+    {
+      "title": "Men's Alta Gold Vermeil ID Bracelet",
+      "handle": "mens-alta-gold-vermeil-id-bracelet",
+      "description": "A classic ID bracelet updated with the Alta textured finish in 18ct gold vermeil. Can be engraved for a personal touch. Length: 19-21cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "mens", "gift-guide"],
+      "priceGBP": 175,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Alta Capture Charm Bracelet",
+      "handle": "alta-capture-charm-bracelet",
+      "description": "The perfect canvas for your charm story. An 18ct gold vermeil chain bracelet with the Capture link for clipping on charms. Adjustable length: 15-18cm.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "charm", "gift-guide"],
+      "priceGBP": 120,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Heart Charm",
+      "handle": "heart-charm",
+      "description": "A hand-finished heart charm in 18ct gold vermeil. Clips onto any Alta Capture chain. Can be engraved on the reverse. Size: 12mm.",
+      "productType": "Charm",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "charm", "gift-guide", "under-50"],
+      "priceGBP": 40,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Star Charm",
+      "handle": "star-charm",
+      "description": "A sparkling star charm set with pavé white topaz in 18ct gold vermeil. Clips onto any Alta Capture chain. Size: 14mm.",
+      "productType": "Charm",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "charm", "gift-guide", "under-50"],
+      "priceGBP": 48,
+      "material": "18ct Gold Vermeil on Sterling Silver with White Topaz",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water.",
+      "sustainability": "Responsibly sourced gemstones. Recycled sterling silver."
+    },
+    {
+      "title": "Siren Moonstone Charm",
+      "handle": "siren-moonstone-charm",
+      "description": "A rose-cut moonstone charm set in the signature Siren bezel in 18ct gold vermeil. An ethereal addition to any charm chain. Size: 10mm.",
+      "productType": "Charm",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "charm", "under-50"],
+      "priceGBP": 45,
+      "material": "18ct Gold Vermeil on Sterling Silver with Moonstone",
+      "careInstructions": "Store in the provided pouch.",
+      "sustainability": "Responsibly sourced moonstone. Recycled sterling silver."
+    },
+    {
+      "title": "Letter Charm",
+      "handle": "letter-charm",
+      "description": "A personalised letter charm in 18ct gold vermeil. Available in A-Z. Clips onto any Alta Capture chain. Size: 10mm.",
+      "productType": "Charm",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "charm", "gift-guide", "under-50"],
+      "priceGBP": 35,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch.",
+      "sustainability": "Crafted with recycled sterling silver."
+    },
+    {
+      "title": "Siren Muse French Wire Earrings",
+      "handle": "siren-muse-french-wire-earrings",
+      "description": "Graceful french wire earrings in 18ct gold vermeil, each set with a rose-cut labradorite stone. The elongated Siren shape creates beautiful movement. Length: 45mm.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "gift-guide"],
+      "priceGBP": 148,
+      "material": "18ct Gold Vermeil on Sterling Silver with Labradorite",
+      "careInstructions": "Store in the provided pouch. Handle with care — french wire is delicate.",
+      "sustainability": "Responsibly sourced gemstones. Recycled sterling silver."
+    },
+    {
+      "title": "Riva Diamond Hoop Earrings",
+      "handle": "riva-diamond-hoop-earrings",
+      "description": "Small hoop earrings in 18ct gold vermeil with a front-facing row of pavé diamonds. A refined everyday essential. Diameter: 16mm.",
+      "productType": "Earring",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "bestseller", "gift-guide"],
+      "priceGBP": 165,
+      "material": "18ct Gold Vermeil on Sterling Silver with 0.04ct Diamonds",
+      "careInstructions": "Store in the provided pouch. Avoid contact with water.",
+      "sustainability": "Responsibly sourced diamonds. Recycled sterling silver."
+    },
+    {
+      "title": "Fiji Gold Vermeil Cuff",
+      "handle": "fiji-gold-vermeil-cuff",
+      "description": "A sleek tapered cuff bracelet in 18ct gold vermeil. Lightweight and comfortable, designed to be worn every day. Open design for adjustable fit.",
+      "productType": "Bracelet",
+      "vendor": "Monica Vinader",
+      "tags": ["gold-vermeil", "womens", "gift-guide", "under-200"],
+      "priceGBP": 155,
+      "material": "18ct Gold Vermeil on Sterling Silver",
+      "careInstructions": "Store in the provided pouch. Avoid bending.",
+      "sustainability": "Crafted with recycled sterling silver."
+    }
+  ],
+  "collections": [
+    {
+      "title": "14K Solid Gold Icons",
+      "handle": "14k-solid-gold-icons",
+      "description": "Our finest pieces, crafted in recycled 14ct solid gold. Investment jewellery designed to last a lifetime and beyond.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "14k-gold",
+      "seo": { "title": "14K Solid Gold Jewellery | Monica Vinader", "description": "Discover our collection of 14ct solid gold jewellery. Timeless investment pieces crafted from recycled gold." }
+    },
+    {
+      "title": "Siren Diamond Collection",
+      "handle": "siren-diamond",
+      "description": "The Siren Diamond Collection: responsibly sourced diamonds set in 14ct recycled gold. Modern, wearable fine jewellery.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "siren-diamond",
+      "seo": { "title": "Siren Diamond Collection | Monica Vinader", "description": "Discover the Siren Diamond Collection. Responsibly sourced diamonds in recycled 14ct gold." }
+    },
+    {
+      "title": "Gold Vermeil",
+      "handle": "gold-vermeil",
+      "description": "18ct gold vermeil on sterling silver. The Monica Vinader signature: luxury that's accessible and sustainable.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "gold-vermeil",
+      "seo": { "title": "Gold Vermeil Jewellery | Monica Vinader", "description": "Shop our gold vermeil collection. 18ct gold on recycled sterling silver." }
+    },
+    {
+      "title": "Silver",
+      "handle": "silver",
+      "description": "Recycled sterling silver jewellery. Timeless designs with a conscience.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "silver",
+      "seo": { "title": "Silver Jewellery | Monica Vinader", "description": "Discover our sterling silver jewellery. Crafted from recycled silver." }
+    },
+    {
+      "title": "Men's Collection",
+      "handle": "mens",
+      "description": "Jewellery for the modern man. Bold designs in gold vermeil and sterling silver.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "mens",
+      "seo": { "title": "Men's Jewellery | Monica Vinader", "description": "Shop men's jewellery. Bold designs in gold vermeil and sterling silver." }
+    },
+    {
+      "title": "Gift Guides",
+      "handle": "gift-guides",
+      "description": "Find the perfect gift for every occasion. Curated selections across all price points.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "gift-guide",
+      "seo": { "title": "Gift Guides | Monica Vinader", "description": "Find the perfect jewellery gift for every occasion." }
+    },
+    {
+      "title": "Gifts Under £50",
+      "handle": "gifts-under-50",
+      "description": "Thoughtful gifts under £50. Beautifully presented in our signature packaging.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "under-50",
+      "seo": { "title": "Gifts Under £50 | Monica Vinader", "description": "Beautiful jewellery gifts under £50." }
+    },
+    {
+      "title": "Gifts Under £100",
+      "handle": "gifts-under-100",
+      "description": "Beautiful gifts under £100. From friendship bracelets to gemstone pendants.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "under-100",
+      "seo": { "title": "Gifts Under £100 | Monica Vinader", "description": "Shop jewellery gifts under £100." }
+    },
+    {
+      "title": "Charms & Pendants",
+      "handle": "charms-pendants",
+      "description": "Build your own charm story. Mix and match charms on our Capture chains for a look that's uniquely yours.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "charm",
+      "seo": { "title": "Charms & Pendants | Monica Vinader", "description": "Build your own charm bracelet or necklace. Mix and match charms." }
+    },
+    {
+      "title": "New Arrivals",
+      "handle": "new-arrivals",
+      "description": "Just landed: the newest additions to the Monica Vinader collection.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "new-arrival",
+      "seo": { "title": "New In | Monica Vinader", "description": "Shop our latest arrivals. New jewellery designs just landed." }
+    },
+    {
+      "title": "Bestsellers",
+      "handle": "bestsellers",
+      "description": "Our most-loved pieces. The jewellery everyone's wearing.",
+      "ruleColumn": "TAG",
+      "ruleRelation": "EQUALS",
+      "ruleCondition": "bestseller",
+      "seo": { "title": "Bestsellers | Monica Vinader", "description": "Shop our bestselling jewellery. The pieces everyone's wearing." }
+    }
+  ],
+  "currencyRates": {
+    "GBP_TO_USD": 1.27,
+    "GBP_TO_EUR": 1.17,
+    "GBP_TO_AED": 4.67
+  }
+}
