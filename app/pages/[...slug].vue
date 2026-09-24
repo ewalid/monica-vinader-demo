@@ -124,9 +124,9 @@ const _viewingSiteConfigState = useState(
 );
 
 const headConfig = {
-  title: story.value?.content?.meta_title ?? 'Brand New Day',
+  title: story.value?.content?.meta_title ?? 'Monica Vinader | Luxury Jewellery',
   meta: [
-    { name: 'description', content: story.value?.content?.meta_title ?? 'A Demo Day for Your New Storyblok Project.' },
+    { name: 'description', content: story.value?.content?.meta_description ?? 'Handcrafted luxury jewellery in 14K solid gold, gold vermeil and sterling silver.' },
   ],
 };
 
