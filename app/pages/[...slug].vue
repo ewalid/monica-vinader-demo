@@ -17,12 +17,14 @@ const storyblokApi = useStoryblokApi();
 
 const apiParams = {
   version: getVersion(),
-  language,
-  fallback_lang: 'default',
   resolve_relations: resolveRelations,
   resolve_links: 'url',
   from_release: releaseId,
 };
+if (language) {
+  apiParams.language = language;
+  apiParams.fallback_lang = 'default';
+}
 
 const { customParent } = useRuntimeConfig().public;
 

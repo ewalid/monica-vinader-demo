@@ -29,10 +29,8 @@ export default async function () {
     storyPath = sectionRoot ? `${sectionRoot}/products` : 'products';
   }
 
-  const language = await getLanguage(await getSlug());
-
   return {
     storyPath,
-    urlPath: language ? `${language}/${storyPath}` : storyPath,
+    urlPath: storyPath,
   };
 }

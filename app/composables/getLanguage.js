@@ -1,21 +1,21 @@
+import { marketFromSlug } from '~/utils/markets';
+
 export default async function (slug) {
-  let language = null;
-  const languageCodes = ref();
-  const storyblokApi = useStoryblokApi();
-
   /**
-   * Request all languages set up in the space.
+   * Market folders (uk, de, es, …) are real story paths. Do not treat them as
+   * field-level language prefixes — stripping them makes a cloned variant 404.
    */
-  const { data } = await storyblokApi.get('cdn/spaces/me');
-  languageCodes.value = data.space.language_codes;
-
-  /**
-   * If the the first part of the slug array matches one of the language codes defined in the space,
-   * it matches the language code that has to be specified in the API request for the story/stories.
-   */
-  if (languageCodes.value.includes(slug[0])) {
-    language = slug[0];
+  if (!slug?.length || marketFromSlug(slug)) {
+    return null;
   }
 
-  return language;
+  const storyblokApi = useStoryblokApi();
+  const { data } = await storyblokApi.get('cdn/spaces/me');
+  const languageCodes = data.space.language_codes || [];
+
+  if (languageCodes.includes(slug[0])) {
+    return slug[0];
+  }
+
+  return null;
 }

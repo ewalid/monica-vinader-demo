@@ -21,10 +21,12 @@ export default async function () {
   const storyblokApi = useStoryblokApi();
   const apiParams = {
     version: getVersion(),
-    language,
     resolve_links: 'url',
     from_release: releaseId,
   };
+  if (language) {
+    apiParams.language = language;
+  }
 
   const resolve = (story) => {
     cached.value = story;
