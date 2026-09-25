@@ -1,5 +1,13 @@
 <script setup>
 defineProps({ blok: Object });
+
+function mediaSrc(blok) {
+  return blok?.image?.filename || blok?.image_url || '';
+}
+
+function isVideo(src) {
+  return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '');
+}
 </script>
 
 <template>
@@ -10,16 +18,18 @@ defineProps({ blok: Object });
   >
     <div class="mv-icon-showcase__container">
       <div class="mv-icon-showcase__media">
-        <img
-          v-if="blok.image?.filename"
-          :src="blok.image.filename + '/m/900x0'"
-          :alt="blok.product_name || ''"
+        <video
+          v-if="isVideo(mediaSrc(blok))"
+          :src="mediaSrc(blok)"
           class="mv-icon-showcase__img"
-          loading="lazy"
+          autoplay
+          muted
+          loop
+          playsinline
         />
         <img
-          v-else-if="blok.image_url"
-          :src="blok.image_url"
+          v-else-if="mediaSrc(blok)"
+          :src="blok.image?.filename ? mediaSrc(blok) + '/m/900x0' : mediaSrc(blok)"
           :alt="blok.product_name || ''"
           class="mv-icon-showcase__img"
           loading="lazy"
@@ -83,6 +93,7 @@ defineProps({ blok: Object });
   width: 100%;
   height: auto;
   display: block;
+  object-fit: contain;
 }
 .mv-icon-showcase__name {
   font-family: var(--font-family-body, 'Work Sans', sans-serif);
