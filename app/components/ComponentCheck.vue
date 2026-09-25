@@ -2,14 +2,25 @@
 defineProps({ blok: Object, index: Number });
 const componentExists = component =>
   typeof resolveComponent(component) !== 'string';
+
+const visibilityClass = computed(() => {
+  const classes = [];
+  if (arguments[0]?.blok?.hide_on_mobile) classes.push('mv-hide-mobile');
+  if (arguments[0]?.blok?.hide_on_desktop) classes.push('mv-hide-desktop');
+  return classes.join(' ');
+});
 </script>
 
 <template>
-  <StoryblokComponent
+  <div
     v-if="componentExists(blok.component)"
-    :blok="blok"
-    :index="index"
-  />
+    :class="{ 'mv-hide-mobile': blok.hide_on_mobile, 'mv-hide-desktop': blok.hide_on_desktop }"
+  >
+    <StoryblokComponent
+      :blok="blok"
+      :index="index"
+    />
+  </div>
   <div v-else class="container flex justify-center">
     <div
       class="my-16 inline-flex items-center justify-center space-x-2 rounded-lg bg-primary-background p-8 text-xl text-primary-dark"
@@ -32,3 +43,12 @@ const componentExists = component =>
     </div>
   </div>
 </template>
+
+<style>
+@media (max-width: 768px) {
+  .mv-hide-mobile { display: none !important; }
+}
+@media (min-width: 769px) {
+  .mv-hide-desktop { display: none !important; }
+}
+</style>

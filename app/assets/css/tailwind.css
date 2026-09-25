@@ -159,3 +159,37 @@
     opacity: 0;
   }
 }
+
+/* RTL layout overrides for MV components */
+[dir="rtl"] {
+  text-align: right;
+}
+[dir="rtl"] .mv-pdp__layout {
+  direction: rtl;
+}
+[dir="rtl"] .mv-pdp__info {
+  padding: 40px 20px 40px 0;
+}
+[dir="rtl"] .mv-pgrid__headline,
+[dir="rtl"] .mv-cnstr__facets-title {
+  text-align: right;
+}
+[dir="rtl"] .mv-coll-header__pills {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .mv-coll-header__toolbar {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .mv-cnstr__layout {
+  direction: rtl;
+}
+[dir="rtl"] .mv-pcard__info,
+[dir="rtl"] .mv-cnstr__pcard-info {
+  text-align: center;
+}
+[dir="rtl"] .mv-gift-card__overlay {
+  align-items: flex-end;
+}
+[dir="rtl"] .mv-editorial-section__content {
+  text-align: right;
+}

@@ -111,7 +111,11 @@ const toggleAccordion = (name) => {
     </div>
 
     <div v-else class="mv-pdp__not-found">
-      <h1>Product not found</h1>
+      <div class="mv-pdp__not-found-inner">
+        <h1 class="mv-pdp__not-found-title">This product isn't available right now</h1>
+        <p class="mv-pdp__not-found-text">The item you're looking for may have sold out or been removed from our collection.</p>
+        <a href="/collections/bestsellers" class="mv-pdp__not-found-cta">Shop Bestsellers</a>
+      </div>
     </div>
   </section>
 
@@ -296,6 +300,36 @@ const toggleAccordion = (name) => {
   padding: 80px 28px;
   text-align: center;
 }
+.mv-pdp__not-found-inner {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.mv-pdp__not-found-title {
+  font-family: var(--font-family-display, 'Cormorant Garamond', serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+.mv-pdp__not-found-text {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.mv-pdp__not-found-cta {
+  display: inline-block;
+  padding: 14px 32px;
+  background: #1a1a1a;
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.3s;
+}
+.mv-pdp__not-found-cta:hover { background: #333; }
 @media (max-width: 768px) {
   .mv-pdp__layout {
     grid-template-columns: 1fr;

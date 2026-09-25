@@ -1,9 +1,27 @@
 <script setup>
 defineProps({ blok: Object });
+
+const parallaxY = ref(0);
+const heroRef = ref(null);
+
+if (import.meta.client) {
+  const onScroll = () => {
+    if (!heroRef.value) return;
+    const rect = heroRef.value.getBoundingClientRect();
+    const progress = -rect.top / (rect.height + window.innerHeight);
+    parallaxY.value = Math.round(progress * 120);
+  };
+  onMounted(() => {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  });
+  onUnmounted(() => window.removeEventListener('scroll', onScroll));
+}
 </script>
 
 <template>
   <section
+    ref="heroRef"
     v-editable="blok"
     class="mv-dark-hero"
   >
@@ -13,10 +31,11 @@ defineProps({ blok: Object });
         :alt="blok.headline || ''"
         class="mv-dark-hero__bg-img"
         loading="eager"
+        :style="{ transform: `translate3d(0, ${parallaxY}px, 0) scale(1.15)` }"
       />
     </picture>
     <div v-else class="mv-dark-hero__bg mv-dark-hero__bg--gradient" />
-    <div class="mv-dark-hero__content">
+    <div class="mv-dark-hero__content mv-dark-hero__content--animate">
       <h1 v-if="blok.headline" class="mv-dark-hero__headline">{{ blok.headline }}</h1>
       <a
         v-if="blok.cta_text && blok.cta_link?.cached_url"
@@ -40,7 +59,7 @@ defineProps({ blok: Object });
 }
 .mv-dark-hero__bg {
   position: absolute;
-  inset: 0;
+  inset: -60px 0;
 }
 .mv-dark-hero__bg--gradient {
   background: radial-gradient(ellipse at center, #1a1a1a 0%, #050505 100%);
@@ -50,12 +69,26 @@ defineProps({ blok: Object });
   height: 100%;
   object-fit: cover;
   opacity: 0.6;
+  will-change: transform;
 }
 .mv-dark-hero__content {
   position: relative;
   z-index: 1;
   padding: 80px 40px;
   max-width: 700px;
+}
+.mv-dark-hero__content--animate {
+  animation: heroReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .mv-dark-hero__headline {
   font-family: var(--font-family-display, 'Cormorant Garamond', serif);

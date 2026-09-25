@@ -36,6 +36,9 @@ const defaultBorderRadiuses = {
 
 const siteConfig = await getSiteConfig();
 
+await useDesignTokens();
+const { dir } = useDirection();
+
 const cssVariables = computed(() => {
   if (!siteConfig.value) {
     return {
@@ -134,6 +137,7 @@ const headConfig = computed(() => ({
   ],
   htmlAttrs: {
     lang: 'en',
+    dir: dir.value,
   },
 }));
 
@@ -244,6 +248,12 @@ watch(route, () => {
 
 :root {
   --nav-background-color: #ffffff;
+  --mv-brand-gold: #c4a265;
+  --mv-brand-cream: #faf8f5;
+  --mv-brand-dark: #1a1a1a;
+  --mv-spacing-section: 64px;
+  --mv-spacing-component: 32px;
+  --mv-border-color: #e0ddd6;
 }
 
 body {
