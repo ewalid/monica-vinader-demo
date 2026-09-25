@@ -68,6 +68,10 @@ const availability = computed(() => {
   return shopify.value.available ? 'In stock' : 'Sold out';
 });
 
+function isRichText(value) {
+  return value?.type === 'doc';
+}
+
 function onAddToCart() {
   if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) return;
   addToCart(shopify.value.variantId);
@@ -116,7 +120,9 @@ function onAddToCart() {
         <p v-if="availability" class="mv-icon-showcase__availability">
           {{ availability }}
         </p>
-        <p v-if="blok.description" class="mv-icon-showcase__desc" v-html="blok.description" />
+        <div v-if="isRichText(blok.description)" class="mv-icon-showcase__desc">
+          <StoryblokRichText :document="blok.description" />
+        </div>
         <div class="mv-icon-showcase__actions">
           <a
             v-if="blok.read_more_link?.cached_url"
@@ -207,6 +213,9 @@ function onAddToCart() {
   line-height: 1.25;
   color: #1a1a1a;
   margin-bottom: 32px;
+}
+.mv-icon-showcase__desc :deep(p) {
+  margin: 0;
 }
 .mv-icon-showcase__desc :deep(em),
 .mv-icon-showcase__desc :deep(i) {
