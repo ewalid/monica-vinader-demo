@@ -1,5 +1,10 @@
 <script setup>
-defineProps({ blok: Object });
+const props = defineProps({ blok: Object });
+
+const shopify = ref(null);
+const siteConfig = await getSiteConfig();
+const cartEnabled = computed(() => !!siteConfig.value?.content?.enable_cart);
+const { addToCart } = useCart();
 
 function mediaSrc(blok) {
   return blok?.image?.filename || blok?.image_url || '';
@@ -7,6 +12,55 @@ function mediaSrc(blok) {
 
 function isVideo(src) {
   return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '');
+}
+
+function formatMoney(amount, currency) {
+  const locale = currency === 'GBP' ? 'en-GB' : 'en-US';
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency || 'USD',
+    maximumFractionDigits: 0,
+  }).format(Number(amount));
+}
+
+async function loadShopify() {
+  if (props.blok?.data_source !== 'shopify' || !props.blok?.shopify_product) {
+    shopify.value = null;
+    return;
+  }
+  try {
+    shopify.value = await fetchShopifyShowcaseProduct(props.blok.shopify_product);
+  }
+  catch (error) {
+    console.log(error);
+    shopify.value = null;
+  }
+}
+
+watch(
+  () => [props.blok?.data_source, props.blok?.shopify_product],
+  loadShopify,
+  { immediate: true },
+);
+
+const displayName = computed(() => shopify.value?.title || props.blok?.product_name || '');
+const displaySubtitle = computed(() => (
+  shopify.value ? shopify.value.subtitle : (props.blok?.subtitle || '')
+));
+const displayPrice = computed(() => {
+  if (shopify.value?.price != null) {
+    return formatMoney(shopify.value.price, shopify.value.currency);
+  }
+  return props.blok?.price || '';
+});
+const availability = computed(() => {
+  if (!shopify.value) return '';
+  return shopify.value.available ? 'In stock' : 'Sold out';
+});
+
+function onAddToCart() {
+  if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) return;
+  addToCart(shopify.value.variantId);
 }
 </script>
 
@@ -30,20 +84,27 @@ function isVideo(src) {
         <img
           v-else-if="mediaSrc(blok)"
           :src="blok.image?.filename ? mediaSrc(blok) + '/m/900x0' : mediaSrc(blok)"
-          :alt="blok.product_name || ''"
+          :alt="displayName || ''"
           class="mv-icon-showcase__img"
           loading="lazy"
         />
       </div>
       <div class="mv-icon-showcase__content">
-        <h3 v-if="blok.product_name" class="mv-icon-showcase__name">
-          {{ blok.product_name }}
+        <h3 v-if="displayName" class="mv-icon-showcase__name">
+          {{ displayName }}
         </h3>
-        <p v-if="blok.subtitle" class="mv-icon-showcase__subtitle">
-          {{ blok.subtitle }}
+        <p v-if="displaySubtitle" class="mv-icon-showcase__subtitle">
+          {{ displaySubtitle }}
         </p>
-        <p v-if="blok.price" class="mv-icon-showcase__price">
-          {{ blok.price }}
+        <p
+          v-if="displayPrice"
+          class="mv-icon-showcase__price"
+          :class="{ 'mv-icon-showcase__price--followed': availability }"
+        >
+          {{ displayPrice }}
+        </p>
+        <p v-if="availability" class="mv-icon-showcase__availability">
+          {{ availability }}
         </p>
         <p v-if="blok.description" class="mv-icon-showcase__desc" v-html="blok.description" />
         <div class="mv-icon-showcase__actions">
@@ -56,6 +117,8 @@ function isVideo(src) {
           </a>
           <button
             class="mv-icon-showcase__btn mv-icon-showcase__btn--solid"
+            :disabled="shopify && !shopify.available"
+            @click="onAddToCart"
           >
             Add to Cart &nbsp;&rarr;
           </button>
@@ -118,6 +181,15 @@ function isVideo(src) {
   color: #1a1a1a;
   margin-bottom: 24px;
 }
+.mv-icon-showcase__price--followed {
+  margin-bottom: 6px;
+}
+.mv-icon-showcase__availability {
+  font-family: var(--font-family-body, 'Work Sans', sans-serif);
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 24px;
+}
 .mv-icon-showcase__desc {
   font-family: var(--font-family-display, 'Cormorant Garamond', serif);
   font-size: clamp(24px, 3.5vw, 36px);
@@ -164,6 +236,10 @@ function isVideo(src) {
 }
 .mv-icon-showcase__btn--solid:hover {
   background: #333;
+}
+.mv-icon-showcase__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 @media (max-width: 768px) {
   .mv-icon-showcase__container {

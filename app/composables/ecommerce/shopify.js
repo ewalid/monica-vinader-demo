@@ -158,6 +158,53 @@ export const fetchShopifyAllProducts = async () => {
   return products;
 };
 
+export const fetchShopifyShowcaseProduct = async (handle) => {
+  if (!handle) {
+    return null;
+  }
+
+  const config = useRuntimeConfig();
+  const endpoint = `https://${config.public.shopifyDomain}/api/2025-01/graphql.json`;
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
+    },
+    body: JSON.stringify({
+      query: `query ($handle: String!) {
+        product(handle: $handle) {
+          title
+          productType
+          metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
+          variants(first: 1) {
+            edges { node { id title availableForSale price { amount currencyCode } } }
+          }
+        }
+      }`,
+      variables: { handle },
+    }),
+  });
+  const json = await response.json();
+  const product = json.data?.product;
+  if (!product) {
+    return null;
+  }
+
+  const variant = product.variants?.edges?.[0]?.node;
+  const material = product.metafields?.[0]?.value || '';
+  const variantTitle = variant?.title && variant.title !== 'Default Title' ? variant.title : '';
+
+  return {
+    title: product.title,
+    subtitle: material || variantTitle || product.productType || '',
+    price: variant?.price?.amount,
+    currency: variant?.price?.currencyCode || 'USD',
+    available: Boolean(variant?.availableForSale),
+    variantId: variant?.id || '',
+  };
+};
+
 export const fetchShopifyProductsByCustomQuery = async (searchTerm) => {
   const products = [];
 
