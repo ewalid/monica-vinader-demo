@@ -14,22 +14,32 @@ function isVideo(src) {
   return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '');
 }
 
+const route = useRoute();
+
 function formatMoney(amount, currency) {
-  const locale = currency === 'GBP' ? 'en-GB' : 'en-US';
-  return new Intl.NumberFormat(locale, {
+  const locales = { GBP: 'en-GB', USD: 'en-US', AED: 'en-AE' };
+  return new Intl.NumberFormat(locales[currency] || 'en-GB', {
     style: 'currency',
     currency: currency || 'USD',
     maximumFractionDigits: 0,
   }).format(Number(amount));
 }
 
+function pageSlug() {
+  if (route.query.path) return String(route.query.path).split('/').filter(Boolean);
+  return route.params.slug || [];
+}
+
 async function loadShopify() {
-  if (props.blok?.data_source !== 'shopify' || !props.blok?.shopify_product) {
+  if (!props.blok?.shopify_product) {
     shopify.value = null;
     return;
   }
   try {
-    shopify.value = await fetchShopifyShowcaseProduct(props.blok.shopify_product);
+    shopify.value = await fetchShopifyShowcaseProduct(
+      props.blok.shopify_product,
+      countryFromSlug(pageSlug()),
+    );
   }
   catch (error) {
     console.log(error);
@@ -38,12 +48,12 @@ async function loadShopify() {
 }
 
 watch(
-  () => [props.blok?.data_source, props.blok?.shopify_product],
+  () => [props.blok?.shopify_product, route.params.slug, route.query.path],
   loadShopify,
   { immediate: true },
 );
 
-const displayName = computed(() => shopify.value?.title || props.blok?.product_name || '');
+const displayName = computed(() => props.blok?.product_name || '');
 const displaySubtitle = computed(() => (
   shopify.value ? shopify.value.subtitle : (props.blok?.subtitle || '')
 ));

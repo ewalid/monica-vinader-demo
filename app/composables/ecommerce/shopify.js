@@ -158,13 +158,16 @@ export const fetchShopifyAllProducts = async () => {
   return products;
 };
 
-export const fetchShopifyShowcaseProduct = async (handle) => {
+export const fetchShopifyShowcaseProduct = async (handle, country) => {
   if (!handle) {
     return null;
   }
 
   const config = useRuntimeConfig();
   const endpoint = `https://${config.public.shopifyDomain}/api/2025-01/graphql.json`;
+  const contextual = country
+    ? 'query ($handle: String!, $country: CountryCode!) @inContext(country: $country)'
+    : 'query ($handle: String!)';
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -172,7 +175,7 @@ export const fetchShopifyShowcaseProduct = async (handle) => {
       'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
     },
     body: JSON.stringify({
-      query: `query ($handle: String!) {
+      query: `${contextual} {
         product(handle: $handle) {
           title
           productType
@@ -182,7 +185,7 @@ export const fetchShopifyShowcaseProduct = async (handle) => {
           }
         }
       }`,
-      variables: { handle },
+      variables: country ? { handle, country } : { handle },
     }),
   });
   const json = await response.json();
