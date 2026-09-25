@@ -25,9 +25,9 @@ if (import.meta.client) {
     v-editable="blok"
     class="mv-dark-hero"
   >
-    <picture v-if="blok.image?.filename" class="mv-dark-hero__bg">
+    <picture v-if="blok.image?.filename || blok.image_url" class="mv-dark-hero__bg">
       <img
-        :src="blok.image.filename + '/m/1920x0'"
+        :src="blok.image?.filename ? blok.image.filename + '/m/1920x0' : blok.image_url"
         :alt="blok.headline || ''"
         class="mv-dark-hero__bg-img"
         loading="eager"
