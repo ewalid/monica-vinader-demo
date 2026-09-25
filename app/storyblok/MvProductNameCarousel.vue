@@ -94,7 +94,7 @@ onBeforeUnmount(() => {
   user-select: none;
 }
 .mv-icon-strip__card {
-  flex: 0 0 148px;
+  flex: 0 0 clamp(148px, 13vw, 240px);
   text-decoration: none;
   color: inherit;
 }
