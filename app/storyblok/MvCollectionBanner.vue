@@ -1,10 +1,30 @@
 <script setup>
 const props = defineProps({ blok: Object });
+const pdpProduct = inject('pdpProduct', ref(null));
+const route = useRoute();
 const href = computed(() => storyblokHref(props.blok?.link));
+
+const editingTemplate = computed(() => {
+  const fromQuery = route.query.path ? String(route.query.path).split('/').filter(Boolean) : [];
+  const segments = fromQuery.length ? fromQuery : (route.params.slug || []);
+  return segments[segments.length - 1] === 'default';
+});
+
+const visible = computed(() => {
+  const attribute = props.blok?.match_attribute || 'none';
+  if (attribute === 'none') return true;
+  if (editingTemplate.value) return true;
+  const product = pdpProduct.value;
+  const expected = String(props.blok?.match_value || '').trim().toLowerCase();
+  if (!product || !expected) return false;
+  const actual = attribute === 'product_type' ? product.productType : product.material;
+  return String(actual || '').toLowerCase().includes(expected);
+});
 </script>
 
 <template>
   <component
+    v-if="visible"
     :is="href ? 'a' : 'section'"
     v-editable="blok"
     class="mv-collection-banner"
