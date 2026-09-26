@@ -158,47 +158,15 @@ export const fetchShopifyAllProducts = async () => {
   return products;
 };
 
-export const fetchShopifyShowcaseProduct = async (handle, country) => {
-  if (!handle) {
-    return null;
-  }
-
-  const config = useRuntimeConfig();
-  const endpoint = `https://${config.public.shopifyDomain}/api/2025-01/graphql.json`;
-  const contextual = country
-    ? 'query ($handle: String!, $country: CountryCode!) @inContext(country: $country)'
-    : 'query ($handle: String!)';
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
-    },
-    body: JSON.stringify({
-      query: `${contextual} {
-        product(handle: $handle) {
-          title
-          productType
-          metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
-          variants(first: 1) {
-            edges { node { id title availableForSale price { amount currencyCode } } }
-          }
-        }
-      }`,
-      variables: country ? { handle, country } : { handle },
-    }),
-  });
-  const json = await response.json();
-  const product = json.data?.product;
+function showcaseProductFromNode(product) {
   if (!product) {
     return null;
   }
-
   const variant = product.variants?.edges?.[0]?.node;
   const material = product.metafields?.[0]?.value || '';
   const variantTitle = variant?.title && variant.title !== 'Default Title' ? variant.title : '';
-
   return {
+    handle: product.handle || '',
     title: product.title,
     subtitle: material || variantTitle || product.productType || '',
     price: variant?.price?.amount,
@@ -206,6 +174,54 @@ export const fetchShopifyShowcaseProduct = async (handle, country) => {
     available: Boolean(variant?.availableForSale),
     variantId: variant?.id || '',
   };
+}
+
+const SHOWCASE_PRODUCT_FIELDS = `
+  handle
+  title
+  productType
+  metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
+  variants(first: 1) {
+    edges { node { id title availableForSale price { amount currencyCode } } }
+  }
+`;
+
+async function queryShowcaseProduct(selection, variables, country) {
+  const config = useRuntimeConfig();
+  const endpoint = `https://${config.public.shopifyDomain}/api/2025-01/graphql.json`;
+  const declared = country ? { ...variables, country } : variables;
+  const argList = Object.keys(declared).map((key) => {
+    const type = key === 'country' ? 'CountryCode!' : key === 'id' ? 'ID!' : 'String!';
+    return `$${key}: ${type}`;
+  }).join(', ');
+  const contextual = country ? ' @inContext(country: $country)' : '';
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
+    },
+    body: JSON.stringify({
+      query: `query (${argList})${contextual} { product(${selection}) { ${SHOWCASE_PRODUCT_FIELDS} } }`,
+      variables: declared,
+    }),
+  });
+  const json = await response.json();
+  return showcaseProductFromNode(json.data?.product);
+}
+
+export const fetchShopifyShowcaseProduct = async (handle, country) => {
+  if (!handle) {
+    return null;
+  }
+  return queryShowcaseProduct('handle: $handle', { handle }, country);
+};
+
+export const fetchShopifyShowcaseProductById = async (id, country) => {
+  if (!id) {
+    return null;
+  }
+  return queryShowcaseProduct('id: $id', { id }, country);
 };
 
 export const fetchShopifyPdpProduct = async (handle, country) => {
