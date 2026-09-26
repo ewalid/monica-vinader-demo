@@ -31,8 +31,14 @@ function pageSlug() {
   return route.params.slug || [];
 }
 
+function pickerItem(value) {
+  if (!value || typeof value !== 'object') return null;
+  const items = Array.isArray(value.items) ? value.items : Array.isArray(value) ? value : [];
+  return items[0] || null;
+}
+
 function pickerProductId() {
-  return props.blok?.shopify_picker?.items?.[0]?.id || '';
+  return pickerItem(props.blok?.shopify_picker)?.id || '';
 }
 
 function usesPicker() {
@@ -51,6 +57,9 @@ async function loadShopify() {
     shopify.value = id
       ? await fetchShopifyShowcaseProductById(id, country)
       : await fetchShopifyShowcaseProduct(handle, country);
+    if (!shopify.value && usesPicker() && pickerItem(props.blok?.shopify_picker)?.handle) {
+      shopify.value = await fetchShopifyShowcaseProduct(pickerItem(props.blok?.shopify_picker).handle, country);
+    }
   }
   catch (error) {
     console.log(error);
@@ -63,6 +72,8 @@ watch(
     props.blok?.product_source,
     props.blok?.shopify_product,
     pickerProductId(),
+    pickerItem(props.blok?.shopify_picker)?.handle,
+    pickerItem(props.blok?.read_more_picker)?.handle,
     route.params.slug,
     route.query.path,
   ],
@@ -90,9 +101,13 @@ function isRichText(value) {
 }
 
 const readMoreHref = computed(() => {
+  const picked = pickerItem(props.blok?.read_more_picker)?.handle;
+  if (picked) return `/${urlPath}/${picked}`;
   const manual = props.blok.read_more_link?.cached_url;
   if (manual) return `/${String(manual).replace(/^\//, '')}`;
-  const handle = usesPicker() ? shopify.value?.handle : props.blok.shopify_product;
+  const handle = usesPicker()
+    ? (pickerItem(props.blok?.shopify_picker)?.handle || shopify.value?.handle)
+    : props.blok.shopify_product;
   if (handle) return `/${urlPath}/${handle}`;
   return '';
 });
