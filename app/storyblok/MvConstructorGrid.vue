@@ -4,26 +4,95 @@ import { fetchConstructorResults, getConstructorSortOptions } from '~/composable
 const props = defineProps({ blok: Object });
 
 const products = ref([]);
-const facets = ref([]);
 const sortOptions = ref(getConstructorSortOptions());
-const activeSort = ref('relevance');
-const activeFacets = ref({});
+const listing = useListingFilters();
 const loading = ref(true);
-const totalResults = ref(0);
 const requestMeta = ref(null);
+
+const FACETS = [
+  {
+    name: 'Material',
+    field: 'material',
+    options: [
+      { value: '14k-gold', label: '14K Solid Gold', test: p => /14k|14ct/.test(hay(p)) },
+      { value: 'gold-vermeil', label: 'Gold Vermeil', test: p => /vermeil/.test(hay(p)) },
+      { value: 'sterling-silver', label: 'Sterling Silver', test: p => /sterling silver|\bsilver\b/.test(hay(p)) && !/vermeil/.test(hay(p)) },
+      { value: 'rose-gold', label: 'Rose Gold', test: p => /rose/.test(hay(p)) },
+    ],
+  },
+  {
+    name: 'Price Range',
+    field: 'price',
+    options: [
+      { value: 'under-100', label: 'Under £100', test: p => Number(p.price) < 100 },
+      { value: '100-250', label: '£100 – £250', test: p => Number(p.price) >= 100 && Number(p.price) <= 250 },
+      { value: '250-500', label: '£250 – £500', test: p => Number(p.price) > 250 && Number(p.price) <= 500 },
+      { value: 'over-500', label: 'Over £500', test: p => Number(p.price) > 500 },
+    ],
+  },
+  {
+    name: 'Collection',
+    field: 'collection',
+    options: [
+      { value: 'siren', label: 'Siren', test: p => /siren/.test(hay(p)) },
+      { value: 'alta', label: 'Alta', test: p => /alta/.test(hay(p)) },
+      { value: 'nura', label: 'Nura', test: p => /nura/.test(hay(p)) },
+      { value: 'fiji', label: 'Fiji', test: p => /fiji/.test(hay(p)) },
+    ],
+  },
+];
+
+function hay(product) {
+  return `${product.materialText || ''} ${product.title || ''} ${product.productType || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
+}
+
+function matchesPill(product, pill) {
+  const text = hay(product);
+  if (!pill || pill === 'all' || pill === 'all necklaces') return true;
+  if (pill === 'gold') return /14k|14ct|vermeil|\bgold\b/.test(text);
+  if (pill === 'silver') return /silver/.test(text) && !/vermeil/.test(text);
+  if (pill === 'diamond') return /diamond/.test(text);
+  if (pill === 'pendants') return /pendant|locket/.test(text);
+  if (pill === 'chains') return /chain/.test(text);
+  return true;
+}
+
+const facets = computed(() => FACETS.map(group => ({
+  ...group,
+  options: group.options.map(opt => ({
+    ...opt,
+    count: products.value.filter(opt.test).length,
+  })),
+})));
+
+const visibleProducts = computed(() => {
+  const selected = listing.value.facets || {};
+  let list = products.value.filter((product) => {
+    const groupsOk = Object.entries(selected).every(([field, values]) => {
+      if (!values?.length) return true;
+      const group = FACETS.find(item => item.field === field);
+      return values.some(value => group?.options.find(opt => opt.value === value)?.test(product));
+    });
+    if (!groupsOk) return false;
+    if (listing.value.inStock && product.availability === false) return false;
+    return matchesPill(product, listing.value.pill);
+  });
+  const sort = listing.value.sort || 'relevance';
+  list = [...list];
+  if (sort === 'price-asc') list.sort((a, b) => Number(a.price) - Number(b.price));
+  else if (sort === 'price-desc') list.sort((a, b) => Number(b.price) - Number(a.price));
+  else if (sort === 'newest') list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  else if (sort === 'bestsellers') list.sort((a, b) => Number(b.price) - Number(a.price));
+  return list;
+});
 
 async function loadProducts() {
   loading.value = true;
   try {
     const handle = props.blok.collection_handle || '';
     const max = parseInt(props.blok.max_products) || 20;
-    const result = await fetchConstructorResults(handle, {
-      maxProducts: max,
-      sort: activeSort.value,
-    });
+    const result = await fetchConstructorResults(handle, { maxProducts: max });
     products.value = result.response.results;
-    facets.value = result.response.facets;
-    totalResults.value = result.response.total_num_results;
     requestMeta.value = result.meta;
   } catch (e) {
     console.error('Constructor grid error:', e);
@@ -35,25 +104,26 @@ async function loadProducts() {
 onMounted(loadProducts);
 
 function toggleFacet(field, value) {
-  if (!activeFacets.value[field]) activeFacets.value[field] = [];
-  const idx = activeFacets.value[field].indexOf(value);
-  if (idx > -1) activeFacets.value[field].splice(idx, 1);
-  else activeFacets.value[field].push(value);
+  const facetsState = { ...(listing.value.facets || {}) };
+  const next = new Set(facetsState[field] || []);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  facetsState[field] = [...next];
+  listing.value = { ...listing.value, facets: facetsState };
 }
 
 function isFacetActive(field, value) {
-  return activeFacets.value[field]?.includes(value);
+  return listing.value.facets?.[field]?.includes(value);
 }
 
 function changeSort(val) {
-  activeSort.value = val;
-  loadProducts();
+  listing.value = { ...listing.value, sort: val };
 }
 
 const editorialPosition = computed(() => parseInt(props.blok.editorial_position) || 5);
 
 const gridItems = computed(() => {
-  const items = products.value.map(p => ({ type: 'product', data: p }));
+  const items = visibleProducts.value.map(p => ({ type: 'product', data: p }));
   if (props.blok.editorial_tile?.length) {
     const pos = Math.min(editorialPosition.value - 1, items.length);
     items.splice(pos, 0, { type: 'editorial', data: props.blok.editorial_tile[0] });
@@ -70,7 +140,7 @@ const gridItems = computed(() => {
         <aside class="mv-cnstr__facets">
           <div class="mv-cnstr__facets-head">
             <span class="mv-cnstr__facets-title">Filter</span>
-            <span class="mv-cnstr__facets-count">{{ totalResults }} results</span>
+            <span class="mv-cnstr__facets-count">{{ visibleProducts.length }} results</span>
           </div>
           <div v-for="facet in facets" :key="facet.field" class="mv-cnstr__facet-group">
             <h4 class="mv-cnstr__facet-name">{{ facet.name }}</h4>
@@ -98,10 +168,10 @@ const gridItems = computed(() => {
         <div class="mv-cnstr__main">
           <div class="mv-cnstr__toolbar">
             <span class="mv-cnstr__result-count">
-              {{ totalResults }} products
+              {{ visibleProducts.length }} products
               <span v-if="requestMeta" class="mv-cnstr__latency">({{ requestMeta.latency_ms }}ms)</span>
             </span>
-            <select class="mv-cnstr__sort" :value="activeSort" @change="changeSort($event.target.value)">
+            <select class="mv-cnstr__sort" :value="listing.sort" @change="changeSort($event.target.value)">
               <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </div>

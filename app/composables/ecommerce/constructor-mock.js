@@ -56,7 +56,7 @@ const SORT_OPTIONS = [
 ];
 
 export async function fetchConstructorResults(collectionHandle, options = {}) {
-  const { maxProducts = 20, sort = 'relevance' } = options;
+  const { maxProducts = 20 } = options;
   let products = [];
 
   try {
@@ -82,11 +82,7 @@ export async function fetchConstructorResults(collectionHandle, options = {}) {
     console.error('Constructor mock fetch error:', e);
   }
 
-  if (sort === 'price-asc') {
-    products.sort((a, b) => a.price - b.price);
-  } else if (sort === 'price-desc') {
-    products.sort((a, b) => b.price - a.price);
-  }
+  products = await attachCatalogueFields(products);
 
   return {
     response: {
@@ -107,6 +103,44 @@ export async function fetchConstructorResults(collectionHandle, options = {}) {
       latency_ms: Math.floor(Math.random() * 40) + 15,
     },
   };
+}
+
+async function attachCatalogueFields(products) {
+  if (!products.length) return products;
+  try {
+    const config = useRuntimeConfig();
+    const response = await fetch(`https://${config.public.shopifyDomain}/api/2025-01/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
+      },
+      body: JSON.stringify({
+        query: `{ products(first: 100) { edges { node {
+          handle productType tags createdAt
+          metafield(namespace: "custom", key: "material") { value }
+        } } } }`,
+      }),
+    });
+    const json = await response.json();
+    const byHandle = {};
+    for (const edge of json.data?.products?.edges || []) {
+      byHandle[edge.node.handle] = edge.node;
+    }
+    return products.map((product) => {
+      const extra = byHandle[product.slug] || {};
+      return {
+        ...product,
+        productType: extra.productType || '',
+        tags: extra.tags || [],
+        materialText: extra.metafield?.value || '',
+        createdAt: extra.createdAt || '',
+      };
+    });
+  } catch (error) {
+    console.error('Constructor catalogue fields:', error);
+    return products;
+  }
 }
 
 export function getConstructorFacets() {

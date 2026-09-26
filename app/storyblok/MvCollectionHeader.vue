@@ -1,5 +1,23 @@
 <script setup>
-defineProps({ blok: Object });
+const props = defineProps({ blok: Object });
+const listing = useListingFilters();
+
+function pillKey(label) {
+  return String(label || '').trim().toLowerCase();
+}
+
+function onPill(pill) {
+  if (pill.link?.cached_url || pill.link?.url) return;
+  const key = pillKey(pill.label);
+  listing.value = {
+    ...listing.value,
+    pill: listing.value.pill === key || key === 'all necklaces' ? '' : key,
+  };
+}
+
+function toggleStock() {
+  listing.value = { ...listing.value, inStock: !listing.value.inStock };
+}
 </script>
 
 <template>
@@ -9,19 +27,30 @@ defineProps({ blok: Object });
       <p v-if="blok.description" class="mv-coll-header__desc">{{ blok.description }}</p>
 
       <div v-if="blok.filter_pills?.length" class="mv-coll-header__pills">
-        <a
+        <component
+          :is="pill.link?.cached_url || pill.link?.url ? 'a' : 'button'"
           v-for="pill in blok.filter_pills"
           :key="pill._uid"
-          :href="pill.link?.cached_url ? '/' + pill.link.cached_url : '#'"
+          :href="pill.link?.cached_url ? '/' + pill.link.cached_url : (pill.link?.url || undefined)"
+          type="button"
           class="mv-coll-header__pill"
+          :class="{ 'mv-coll-header__pill--active': listing.pill === pillKey(pill.label) }"
+          @click="onPill(pill)"
         >
           {{ pill.label }}
-        </a>
+        </component>
       </div>
 
       <div class="mv-coll-header__toolbar">
         <span class="mv-coll-header__count">{{ blok.product_count || '' }}</span>
-        <span class="mv-coll-header__stock-toggle">In Stock</span>
+        <button
+          type="button"
+          class="mv-coll-header__stock-toggle"
+          :class="{ 'mv-coll-header__stock-toggle--on': listing.inStock }"
+          @click="toggleStock"
+        >
+          In Stock
+        </button>
       </div>
     </div>
   </section>
@@ -70,11 +99,19 @@ defineProps({ blok: Object });
   text-transform: uppercase;
   text-decoration: none;
   color: #1a1a1a;
+  background: transparent;
   border: 1px solid #d4d0c8;
+  cursor: pointer;
+  font-family: inherit;
   white-space: nowrap;
   transition: all 0.2s;
 }
 .mv-coll-header__pill:hover {
+  border-color: #1a1a1a;
+}
+.mv-coll-header__pill--active {
+  background: #1a1a1a;
+  color: #fff;
   border-color: #1a1a1a;
 }
 .mv-coll-header__toolbar {
@@ -92,5 +129,12 @@ defineProps({ blok: Object });
   font-size: 13px;
   color: #1a1a1a;
   font-weight: 500;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mv-coll-header__stock-toggle--on {
+  text-decoration: underline;
 }
 </style>
