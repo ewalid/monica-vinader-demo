@@ -208,6 +208,61 @@ export const fetchShopifyShowcaseProduct = async (handle, country) => {
   };
 };
 
+export const fetchShopifyPdpProduct = async (handle, country) => {
+  if (!handle) {
+    return null;
+  }
+
+  const config = useRuntimeConfig();
+  const endpoint = `https://${config.public.shopifyDomain}/api/2025-01/graphql.json`;
+  const contextual = country
+    ? 'query ($handle: String!, $country: CountryCode!) @inContext(country: $country)'
+    : 'query ($handle: String!)';
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': config.public.shopifyToken,
+    },
+    body: JSON.stringify({
+      query: `${contextual} {
+        product(handle: $handle) {
+          title
+          description
+          options { name }
+          images(first: 5) { edges { node { url altText } } }
+          metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
+          variants(first: 20) {
+            edges { node { id title availableForSale price { amount currencyCode } } }
+          }
+        }
+      }`,
+      variables: country ? { handle, country } : { handle },
+    }),
+  });
+  const json = await response.json();
+  const product = json.data?.product;
+  if (!product) {
+    return null;
+  }
+
+  return {
+    title: product.title,
+    description: product.description || '',
+    material: product.metafields?.[0]?.value || '',
+    optionName: product.options?.[0]?.name || '',
+    image: product.images?.edges?.[0]?.node?.url || '',
+    imageAlt: product.images?.edges?.[0]?.node?.altText || product.title,
+    variants: (product.variants?.edges || []).map(({ node }) => ({
+      id: node.id,
+      title: node.title,
+      available: Boolean(node.availableForSale),
+      price: node.price?.amount,
+      currency: node.price?.currencyCode || 'USD',
+    })),
+  };
+};
+
 export const fetchShopifyProductsByCustomQuery = async (searchTerm) => {
   const products = [];
 

@@ -8,9 +8,25 @@ const props = defineProps({
 
 const product = ref(null);
 const pending = ref(true);
+const selectedVariant = ref(0);
+const route = useRoute();
+
+function pageSlug() {
+  if (route.query.path) return String(route.query.path).split('/').filter(Boolean);
+  return route.params.slug || [];
+}
+
+function formatMoney(amount, currency) {
+  const locales = { GBP: 'en-GB', USD: 'en-US', AED: 'en-AE' };
+  return new Intl.NumberFormat(locales[currency] || 'en-GB', {
+    style: 'currency',
+    currency: currency || 'USD',
+    maximumFractionDigits: 0,
+  }).format(Number(amount));
+}
 
 try {
-  product.value = await fetchShopifyProductByHandle(props.productSlug);
+  product.value = await fetchShopifyPdpProduct(props.productSlug, countryFromSlug(pageSlug()));
   pending.value = false;
 }
 catch (error) {
@@ -18,14 +34,16 @@ catch (error) {
   pending.value = false;
 }
 
+const variant = computed(() => product.value?.variants?.[selectedVariant.value] || null);
+
 const siteConfig = await getSiteConfig();
 const cartEnabled = computed(() => !!siteConfig.value?.content?.enable_cart);
 
 const { addToCart } = useCart();
 const justAdded = ref(false);
 const onAddToCart = () => {
-  if (!cartEnabled.value || !product.value?.variantId) return;
-  addToCart(product.value.variantId);
+  if (!cartEnabled.value || !variant.value?.id || !variant.value.available) return;
+  addToCart(variant.value.id);
   justAdded.value = true;
   setTimeout(() => { justAdded.value = false; }, 2500);
 };
@@ -43,18 +61,23 @@ const toggleAccordion = (name) => {
       <!-- Image Gallery -->
       <div class="mv-pdp__gallery">
         <div class="mv-pdp__main-image">
-          <img :src="product.image" :alt="product.title" class="mv-pdp__img" />
+          <img
+            v-if="product.image"
+            :src="product.image"
+            :alt="product.imageAlt"
+            class="mv-pdp__img"
+          />
         </div>
       </div>
 
       <!-- Product Info -->
       <div class="mv-pdp__info">
         <h1 class="mv-pdp__title">{{ product.title }}</h1>
-        <p class="mv-pdp__material">18k Gold Vermeil</p>
+        <p v-if="product.material" class="mv-pdp__material">{{ product.material }}</p>
 
-        <div class="mv-pdp__pricing">
+        <div v-if="variant" class="mv-pdp__pricing">
           <span class="mv-pdp__price">
-            {{ product.priceCurrency === 'GBP' ? '£' : '$' }}{{ product.price }}
+            {{ formatMoney(variant.price, variant.currency) }}
           </span>
         </div>
 
@@ -63,19 +86,30 @@ const toggleAccordion = (name) => {
           <span class="mv-pdp__rating-text">4.9</span>
         </div>
 
-        <div class="mv-pdp__finish">
-          <span class="mv-pdp__finish-label">Finish:</span>
-          <span class="mv-pdp__swatch mv-pdp__swatch--gold" />
-          <span class="mv-pdp__swatch mv-pdp__swatch--silver" />
-          <span class="mv-pdp__swatch mv-pdp__swatch--rose" />
+        <div v-if="product.variants.length" class="mv-pdp__variants">
+          <span class="mv-pdp__finish-label">{{ product.optionName }}:</span>
+          <button
+            v-for="(item, index) in product.variants"
+            :key="item.id"
+            type="button"
+            class="mv-pdp__variant"
+            :class="{ 'mv-pdp__variant--selected': index === selectedVariant }"
+            @click="selectedVariant = index"
+          >
+            {{ item.title }}
+          </button>
         </div>
 
         <div class="mv-pdp__stock">
-          <span v-if="product.availability" class="mv-pdp__in-stock">In Stock &#10003;</span>
+          <span v-if="variant?.available" class="mv-pdp__in-stock">In Stock &#10003;</span>
           <span v-else class="mv-pdp__out-stock">Out of Stock</span>
         </div>
 
-        <button class="mv-pdp__add-btn" @click="onAddToCart">
+        <button
+          class="mv-pdp__add-btn"
+          :disabled="variant && !variant.available"
+          @click="onAddToCart"
+        >
           {{ justAdded ? 'Added to Bag ✓' : 'Add to Bag' }}
           <span v-if="!justAdded" class="mv-pdp__arrow">&rarr;</span>
         </button>
@@ -209,6 +243,28 @@ const toggleAccordion = (name) => {
 .mv-pdp__finish-label {
   font-size: 13px;
   color: #666;
+}
+.mv-pdp__variants {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.mv-pdp__variant {
+  min-width: 44px;
+  padding: 8px 12px;
+  border: 1px solid #1a1a1a;
+  background: transparent;
+  color: #1a1a1a;
+  font-family: var(--font-family-body, 'Work Sans', sans-serif);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.mv-pdp__variant--selected {
+  background: #1a1a1a;
+  color: #fff;
 }
 .mv-pdp__swatch {
   width: 28px;

@@ -3,6 +3,7 @@ const props = defineProps({ blok: Object });
 
 const shopify = ref(null);
 const siteConfig = await getSiteConfig();
+const { urlPath } = await getProductsPath();
 const cartEnabled = computed(() => !!siteConfig.value?.content?.enable_cart);
 const { addToCart } = useCart();
 
@@ -72,6 +73,13 @@ function isRichText(value) {
   return value?.type === 'doc';
 }
 
+const readMoreHref = computed(() => {
+  const manual = props.blok.read_more_link?.cached_url;
+  if (manual) return `/${String(manual).replace(/^\//, '')}`;
+  if (props.blok.shopify_product) return `/${urlPath}/${props.blok.shopify_product}`;
+  return '';
+});
+
 function onAddToCart() {
   if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) return;
   addToCart(shopify.value.variantId);
@@ -125,8 +133,8 @@ function onAddToCart() {
         </div>
         <div class="mv-icon-showcase__actions">
           <a
-            v-if="blok.read_more_link?.cached_url"
-            :href="'/' + blok.read_more_link.cached_url"
+            v-if="readMoreHref"
+            :href="readMoreHref"
             class="mv-icon-showcase__btn mv-icon-showcase__btn--outline"
           >
             Read More
