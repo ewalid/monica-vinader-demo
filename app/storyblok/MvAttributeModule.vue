@@ -1,7 +1,14 @@
 <script setup>
 const props = defineProps({ blok: Object });
 const pdpProduct = inject('pdpProduct', ref(null));
+const pdpVariant = inject('pdpVariant', computed(() => null));
 const route = useRoute();
+
+const attributeLabel = computed(() => ({
+  product_type: 'Product type',
+  finish: 'Finish',
+  material: 'Material',
+}[props.blok?.match_attribute] || 'Material'));
 
 const editingTemplate = computed(() => {
   const fromQuery = route.query.path ? String(route.query.path).split('/').filter(Boolean) : [];
@@ -14,9 +21,12 @@ const visible = computed(() => {
   const product = pdpProduct.value;
   const expected = String(props.blok?.match_value || '').trim().toLowerCase();
   if (!product || !expected) return false;
-  const actual = props.blok?.match_attribute === 'product_type'
+  const attribute = props.blok?.match_attribute;
+  const actual = attribute === 'product_type'
     ? product.productType
-    : product.material;
+    : attribute === 'finish'
+      ? pdpVariant.value?.title
+      : product.material;
   return String(actual || '').toLowerCase().includes(expected);
 });
 </script>
@@ -24,7 +34,7 @@ const visible = computed(() => {
 <template>
   <section v-if="visible" v-editable="blok" class="mv-attribute">
     <div class="mv-attribute__inner">
-      <p class="mv-attribute__rule">{{ blok.match_attribute === 'product_type' ? 'Product type' : 'Material' }}</p>
+      <p class="mv-attribute__rule">{{ attributeLabel }} · {{ blok.match_value }}</p>
       <h2 v-if="blok.headline" class="mv-attribute__headline">{{ blok.headline }}</h2>
       <p v-if="blok.body" class="mv-attribute__body">{{ blok.body }}</p>
     </div>

@@ -41,6 +41,7 @@ catch (error) {
 }
 
 const variant = computed(() => product.value?.variants?.[selectedVariant.value] || null);
+provide('pdpVariant', variant);
 
 const gallery = computed(() => {
   const images = product.value?.images || [];
