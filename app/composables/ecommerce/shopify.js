@@ -229,11 +229,23 @@ export const fetchShopifyPdpProduct = async (handle, country) => {
         product(handle: $handle) {
           title
           description
+          descriptionHtml
           options { name }
-          images(first: 5) { edges { node { url altText } } }
-          metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
+          images(first: 16) { edges { node { url altText } } }
+          metafields(identifiers: [
+            {namespace: "custom", key: "material"},
+            {namespace: "custom", key: "addons"},
+            {namespace: "custom", key: "rating"},
+            {namespace: "custom", key: "review_count"}
+          ]) { value }
           variants(first: 20) {
-            edges { node { id title availableForSale price { amount currencyCode } } }
+            edges { node {
+              id
+              title
+              availableForSale
+              price { amount currencyCode }
+              image { url altText }
+            } }
           }
         }
       }`,
@@ -246,19 +258,34 @@ export const fetchShopifyPdpProduct = async (handle, country) => {
     return null;
   }
 
+  const fields = product.metafields || [];
+  let addons = [];
+  try {
+    addons = fields[1]?.value ? JSON.parse(fields[1].value) : [];
+  }
+  catch {
+    addons = [];
+  }
+
   return {
     title: product.title,
-    description: product.description || '',
-    material: product.metafields?.[0]?.value || '',
+    description: product.descriptionHtml || product.description || '',
+    material: fields[0]?.value || '',
+    addons: Array.isArray(addons) ? addons : [],
+    rating: fields[2]?.value || '',
+    reviewCount: fields[3]?.value || '',
     optionName: product.options?.[0]?.name || '',
-    image: product.images?.edges?.[0]?.node?.url || '',
-    imageAlt: product.images?.edges?.[0]?.node?.altText || product.title,
+    images: (product.images?.edges || []).map(({ node }) => ({
+      url: node.url,
+      alt: node.altText || product.title,
+    })),
     variants: (product.variants?.edges || []).map(({ node }) => ({
       id: node.id,
       title: node.title,
       available: Boolean(node.availableForSale),
       price: node.price?.amount,
       currency: node.price?.currencyCode || 'USD',
+      image: node.image?.url || '',
     })),
   };
 };
