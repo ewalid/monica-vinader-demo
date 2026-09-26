@@ -7,6 +7,7 @@ const props = defineProps({
 });
 
 const product = ref(null);
+provide('pdpProduct', product);
 const pending = ref(true);
 const selectedVariant = ref(0);
 const selectedAddon = ref(-1);

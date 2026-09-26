@@ -246,6 +246,8 @@ export const fetchShopifyPdpProduct = async (handle, country) => {
           title
           description
           descriptionHtml
+          productType
+          tags
           options { name }
           images(first: 16) { edges { node { url altText } } }
           metafields(identifiers: [
@@ -286,6 +288,8 @@ export const fetchShopifyPdpProduct = async (handle, country) => {
   return {
     title: product.title,
     description: product.descriptionHtml || product.description || '',
+    productType: product.productType || '',
+    tags: product.tags || [],
     material: fields[0]?.value || '',
     addons: Array.isArray(addons) ? addons : [],
     rating: fields[2]?.value || '',
