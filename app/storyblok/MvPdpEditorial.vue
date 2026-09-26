@@ -9,6 +9,8 @@ const editingTemplate = computed(() => {
   return segments[segments.length - 1] === 'default';
 });
 
+const linkHref = computed(() => storyblokHref(props.blok?.link));
+
 const visible = computed(() => {
   const attribute = props.blok?.match_attribute || 'none';
   if (attribute === 'none') return true;
@@ -31,7 +33,13 @@ const visible = computed(() => {
       <p v-if="blok.eyebrow" class="mv-pdp-editorial__eyebrow">{{ blok.eyebrow }}</p>
       <h2 v-if="blok.headline" class="mv-pdp-editorial__headline">{{ blok.headline }}</h2>
       <p v-if="blok.body" class="mv-pdp-editorial__body">{{ blok.body }}</p>
-      <a v-if="blok.link && blok.link_label" :href="blok.link" class="mv-pdp-editorial__link">
+      <a
+        v-if="linkHref && blok.link_label"
+        :href="linkHref"
+        class="mv-pdp-editorial__link"
+        :target="blok.link?.target || undefined"
+        :rel="blok.link?.target === '_blank' ? 'noopener' : undefined"
+      >
         {{ blok.link_label }}
       </a>
     </div>
