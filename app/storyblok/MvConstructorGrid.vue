@@ -120,20 +120,47 @@ function changeSort(val) {
   listing.value = { ...listing.value, sort: val };
 }
 
-const editorialPosition = computed(() => parseInt(props.blok.editorial_position) || 5);
+const columns = computed(() => {
+  const value = parseInt(props.blok.columns, 10);
+  return value >= 2 && value <= 4 ? value : 4;
+});
+
+const gridStyle = computed(() => ({
+  '--cols': columns.value,
+  '--gap': props.blok.gap ? `${parseInt(props.blok.gap, 10) || 24}px` : '24px',
+}));
+
+function tileSpan(tile) {
+  const value = String(tile?.span || '1');
+  if (value === 'full') return 'full';
+  const span = parseInt(value, 10);
+  if (span >= 2 && span < columns.value) return String(span);
+  if (span >= columns.value) return 'full';
+  return '1';
+}
 
 const gridItems = computed(() => {
   const items = visibleProducts.value.map(p => ({ type: 'product', data: p }));
-  if (props.blok.editorial_tile?.length) {
-    const pos = Math.min(editorialPosition.value - 1, items.length);
-    items.splice(pos, 0, { type: 'editorial', data: props.blok.editorial_tile[0] });
+  const tiles = [...(props.blok.editorial_tile || [])]
+    .map((tile, index) => ({
+      tile,
+      position: parseInt(tile.position, 10) || (index === 0 ? parseInt(props.blok.editorial_position, 10) || 5 : index + 1),
+    }))
+    .sort((a, b) => b.position - a.position);
+  for (const { tile, position } of tiles) {
+    const index = Math.min(Math.max(position - 1, 0), items.length);
+    items.splice(index, 0, { type: 'editorial', data: tile, span: tileSpan(tile) });
   }
   return items;
 });
 </script>
 
 <template>
-  <section v-editable="blok" class="mv-cnstr">
+  <section
+    v-editable="blok"
+    class="mv-cnstr"
+    :style="blok.background_color ? { background: blok.background_color } : null"
+  >
     <div class="mv-cnstr__container">
       <div class="mv-cnstr__layout">
         <!-- Facets sidebar -->
@@ -176,11 +203,11 @@ const gridItems = computed(() => {
             </select>
           </div>
 
-          <div v-if="loading" class="mv-cnstr__grid mv-cnstr__grid--4">
+          <div v-if="loading" class="mv-cnstr__grid" :style="gridStyle">
             <span v-for="n in 8" :key="n" class="mv-cnstr__skeleton" />
           </div>
 
-          <div v-else class="mv-cnstr__grid mv-cnstr__grid--4">
+          <div v-else class="mv-cnstr__grid" :style="gridStyle">
             <template v-for="(item, idx) in gridItems" :key="idx">
               <!-- Product card -->
               <a
@@ -204,11 +231,15 @@ const gridItems = computed(() => {
               </a>
 
               <!-- Editorial tile (CMS-injected) -->
-              <div v-else-if="item.type === 'editorial'" class="mv-cnstr__editorial">
-                <div class="mv-cnstr__editorial-badge">Editorial — CMS</div>
+              <a
+                v-else-if="item.type === 'editorial'"
+                class="mv-cnstr__editorial"
+                :class="`mv-cnstr__editorial--${item.span}`"
+                :href="storyblokHref(item.data.cta_link) || undefined"
+              >
                 <img
                   v-if="item.data.image?.filename"
-                  :src="item.data.image.filename + '/m/600x800'"
+                  :src="item.data.image.filename"
                   :alt="item.data.headline || ''"
                   class="mv-cnstr__editorial-img"
                 />
@@ -218,16 +249,12 @@ const gridItems = computed(() => {
                   :alt="item.data.headline || ''"
                   class="mv-cnstr__editorial-img"
                 />
-                <div class="mv-cnstr__editorial-overlay">
+                <div class="mv-cnstr__editorial-copy">
+                  <p v-if="item.data.subheadline" class="mv-cnstr__editorial-kicker">{{ item.data.subheadline }}</p>
                   <h3 v-if="item.data.headline" class="mv-cnstr__editorial-title">{{ item.data.headline }}</h3>
-                  <p v-if="item.data.subheadline" class="mv-cnstr__editorial-sub">{{ item.data.subheadline }}</p>
-                  <a
-                    v-if="item.data.cta_link?.cached_url || item.data.cta_link?.url"
-                    :href="item.data.cta_link.cached_url ? '/' + item.data.cta_link.cached_url : item.data.cta_link.url"
-                    class="mv-cnstr__editorial-cta"
-                  >{{ item.data.cta_text || 'Discover' }}</a>
+                  <span v-if="item.data.cta_text" class="mv-cnstr__editorial-cta">{{ item.data.cta_text }}</span>
                 </div>
-              </div>
+              </a>
             </template>
           </div>
         </div>
@@ -362,11 +389,15 @@ const gridItems = computed(() => {
 /* Grid */
 .mv-cnstr__grid {
   display: grid;
-  gap: 24px;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: var(--gap, 24px);
 }
-.mv-cnstr__grid--4 { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 1024px) { .mv-cnstr__grid--4 { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px) { .mv-cnstr__grid--4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1024px) {
+  .mv-cnstr__grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .mv-cnstr__grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* Product card */
 .mv-cnstr__pcard {
@@ -421,70 +452,74 @@ const gridItems = computed(() => {
   color: #666;
 }
 
-/* Editorial tile */
+/* Editorial tile — in-grid banner */
 .mv-cnstr__editorial {
   position: relative;
-  aspect-ratio: 3/4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  border-radius: 0;
-}
-.mv-cnstr__editorial-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  padding: 3px 8px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: #c4a265;
+  aspect-ratio: 3/4;
+  background: #204151;
   color: #fff;
-  border-radius: 2px;
+  text-decoration: none;
+  text-align: center;
 }
+.mv-cnstr__editorial--2 { grid-column: span 2; aspect-ratio: auto; min-height: 480px; }
+.mv-cnstr__editorial--3 { grid-column: span 3; aspect-ratio: auto; min-height: 480px; }
+.mv-cnstr__editorial--full { grid-column: 1 / -1; aspect-ratio: auto; min-height: 320px; }
 .mv-cnstr__editorial-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.mv-cnstr__editorial-overlay {
+.mv-cnstr__editorial::after {
+  content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+.mv-cnstr__editorial-copy {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+}
+.mv-cnstr__editorial-kicker {
+  margin: 0;
+  font-family: "Work Sans", Helvetica, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .mv-cnstr__editorial-title {
-  font-family: var(--font-family-display, 'Cormorant Garamond', serif);
-  font-size: 22px;
-  font-weight: 300;
-  font-style: italic;
-  color: #fff;
-}
-.mv-cnstr__editorial-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.85);
+  margin: 0;
+  max-width: 12em;
+  font-family: "Libre Caslon Text", "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.5;
 }
 .mv-cnstr__editorial-cta {
   display: inline-block;
-  padding: 8px 16px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin-top: 4px;
+  padding: 10px 20px;
   background: #fff;
-  color: #1a1a1a;
-  text-decoration: none;
-  transition: all 0.3s;
+  color: #204151;
+  font-family: "Work Sans", Helvetica, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.mv-cnstr__editorial-cta:hover {
-  background: #1a1a1a;
-  color: #fff;
+@media (max-width: 768px) {
+  .mv-cnstr__editorial--2,
+  .mv-cnstr__editorial--3,
+  .mv-cnstr__editorial--full { grid-column: 1 / -1; }
 }
 
 /* Skeleton */
