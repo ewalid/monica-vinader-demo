@@ -14,7 +14,10 @@ const visibilityClass = computed(() => {
 <template>
   <div
     v-if="componentExists(blok.component)"
-    :class="{ 'mv-hide-mobile': blok.hide_on_mobile, 'mv-hide-desktop': blok.hide_on_desktop }"
+    :class="[
+      { 'mv-hide-mobile': blok.hide_on_mobile, 'mv-hide-desktop': blok.hide_on_desktop },
+      { 'mv-stack-pass': ['mv-dark-hero', 'mv-dual-image', 'mv-large-text', 'mv-three-cards'].includes(blok.component) },
+    ]"
   >
     <StoryblokComponent
       :blok="blok"
@@ -45,6 +48,7 @@ const visibilityClass = computed(() => {
 </template>
 
 <style>
+.mv-stack-pass { display: contents; }
 @media (max-width: 768px) {
   .mv-hide-mobile { display: none !important; }
 }

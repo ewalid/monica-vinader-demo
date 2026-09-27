@@ -35,7 +35,9 @@ defineProps({ blok: Object });
 
 <style scoped>
 .mv-three-cards {
-  background: #faf8f5;
+  position: relative;
+  z-index: 1;
+  background: #fff;
   padding: 60px 28px;
 }
 .mv-three-cards__grid {
