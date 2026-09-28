@@ -93,13 +93,18 @@ export default async function () {
     }
   }
 
-  // Final fallback: root site-config.
-  try {
-    const { data } = await storyblokApi.get('cdn/stories/site-config', apiParams);
-    return resolve(data.story);
+  // Final fallbacks: root site-config, then the UK market config (shared
+  // folders like banners/ sit outside market trees and still need chrome).
+  for (const fallback of ['site-config', 'uk/site-config']) {
+    try {
+      const { data } = await storyblokApi.get(`cdn/stories/${fallback}`, apiParams);
+      return resolve(data.story);
+    }
+    catch {
+      // try next
+    }
   }
-  catch {
-    console.warn('No site-config found at any level');
-    return resolve(null);
-  }
+
+  console.warn('No site-config found at any level');
+  return resolve(null);
 }

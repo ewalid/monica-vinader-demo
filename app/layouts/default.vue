@@ -121,6 +121,9 @@ const viewingSiteConfig = useState('viewingSiteConfig');
 const { customParent } = useRuntimeConfig().public;
 
 onMounted(() => {
+  if (!siteConfig.value?.id) {
+    return;
+  }
   useStoryblokBridge(
     siteConfig.value.id,
     evStory => (siteConfig.value = evStory),
@@ -130,6 +133,8 @@ onMounted(() => {
     },
   );
 });
+
+const chrome = computed(() => siteConfig.value?.content || {});
 
 const headConfig = computed(() => ({
   style: [
@@ -168,22 +173,22 @@ watch(route, () => {
 <template>
   <main>
     <Header
-      :logo="siteConfig.content.header_logo"
-      :nav="siteConfig.content.header_nav"
-      :buttons="siteConfig.content.header_buttons"
-      :light="siteConfig.content.header_light"
-      :enable-cart="siteConfig.content.enable_cart"
-      :announcement="siteConfig.content.announcement?.[0] || null"
-      :search-placeholder="siteConfig.content.header_search_placeholder || 'Search for a product or finish'"
+      :logo="chrome.header_logo"
+      :nav="chrome.header_nav"
+      :buttons="chrome.header_buttons"
+      :light="chrome.header_light"
+      :enable-cart="chrome.enable_cart"
+      :announcement="chrome.announcement?.[0] || null"
+      :search-placeholder="chrome.header_search_placeholder || 'Search for a product or finish'"
       @toggle-mobile-nav="mobileNavOpen = !mobileNavOpen"
     />
     <MobileNav
-      :mobile-nav="siteConfig.content.header_nav"
+      :mobile-nav="chrome.header_nav"
       :mobile-nav-open="mobileNavOpen"
-      :enable-cart="siteConfig.content.enable_cart"
+      :enable-cart="chrome.enable_cart"
     />
     <div
-      v-if="viewingSiteConfig && siteConfig.content.use_custom_colors"
+      v-if="viewingSiteConfig && chrome.use_custom_colors"
       class="container py-12"
     >
       <h2 class="mb-8 text-4xl font-black text-(--headline-color)">Color Preview</h2>
@@ -209,7 +214,7 @@ watch(route, () => {
       </div>
     </div>
     <div
-      v-if="viewingSiteConfig && siteConfig.content.use_custom_fonts"
+      v-if="viewingSiteConfig && chrome.use_custom_fonts"
       class="container py-12 text-primary-dark"
     >
       <h2 class="mb-4 text-4xl font-black text-(--headline-color)">Typography Preview</h2>
@@ -224,7 +229,7 @@ watch(route, () => {
       </p>
     </div>
     <slot></slot>
-    <Footer :config="siteConfig.content" />
+    <Footer :config="chrome" />
   </main>
 </template>
 
