@@ -1,4 +1,6 @@
 <script setup>
+import { mediaUrl } from '~/utils/sirenMedia';
+
 const props = defineProps({ blok: Object });
 
 const shopify = ref(null);
@@ -7,13 +9,7 @@ const { urlPath } = await getProductsPath();
 const cartEnabled = computed(() => !!siteConfig.value?.content?.enable_cart);
 const { addToCart } = useCart();
 
-function mediaSrc(blok) {
-  return blok?.image?.filename || blok?.image_url || '';
-}
-
-function isVideo(src) {
-  return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '');
-}
+const mediaSrc = computed(() => mediaUrl(props.blok?.image, props.blok?.image_url));
 
 const route = useRoute();
 
@@ -27,12 +23,12 @@ function formatMoney(amount, currency) {
 }
 
 function pageSlug() {
-  if (route.query.path) return String(route.query.path).split('/').filter(Boolean);
+  if (route.query.path) { return String(route.query.path).split('/').filter(Boolean); }
   return route.params.slug || [];
 }
 
 function pickerItem(value) {
-  if (!value || typeof value !== 'object') return null;
+  if (!value || typeof value !== 'object') { return null; }
   const items = Array.isArray(value.items) ? value.items : Array.isArray(value) ? value : [];
   return items[0] || null;
 }
@@ -92,7 +88,7 @@ const displayPrice = computed(() => {
   return props.blok?.price || '';
 });
 const availability = computed(() => {
-  if (!shopify.value) return '';
+  if (!shopify.value) { return ''; }
   return shopify.value.available ? 'In stock' : 'Sold out';
 });
 
@@ -102,18 +98,18 @@ function isRichText(value) {
 
 const readMoreHref = computed(() => {
   const picked = pickerItem(props.blok?.read_more_picker)?.handle;
-  if (picked) return `/${urlPath}/${picked}`;
+  if (picked) { return `/${urlPath}/${picked}`; }
   const manual = props.blok.read_more_link?.cached_url;
-  if (manual) return `/${String(manual).replace(/^\//, '')}`;
+  if (manual) { return `/${String(manual).replace(/^\//, '')}`; }
   const handle = usesPicker()
     ? (pickerItem(props.blok?.shopify_picker)?.handle || shopify.value?.handle)
     : props.blok.shopify_product;
-  if (handle) return `/${urlPath}/${handle}`;
+  if (handle) { return `/${urlPath}/${handle}`; }
   return '';
 });
 
 function onAddToCart() {
-  if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) return;
+  if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) { return; }
   addToCart(shopify.value.variantId);
 }
 </script>
@@ -126,21 +122,12 @@ function onAddToCart() {
   >
     <div class="mv-icon-showcase__container">
       <div class="mv-icon-showcase__media">
-        <video
-          v-if="isVideo(mediaSrc(blok))"
-          :src="mediaSrc(blok)"
+        <MvMedia
+          :src="mediaSrc"
+          :alt="blok.image?.alt || displayName || ''"
+          :width="900"
+          lazy
           class="mv-icon-showcase__img"
-          autoplay
-          muted
-          loop
-          playsinline
-        />
-        <img
-          v-else-if="mediaSrc(blok)"
-          :src="blok.image?.filename ? mediaSrc(blok) + '/m/900x0' : mediaSrc(blok)"
-          :alt="displayName || ''"
-          class="mv-icon-showcase__img"
-          loading="lazy"
         />
       </div>
       <div class="mv-icon-showcase__content">
@@ -213,6 +200,10 @@ function onAddToCart() {
   height: auto;
   display: block;
   object-fit: contain;
+}
+iframe.mv-icon-showcase__img {
+  aspect-ratio: 1 / 1;
+  pointer-events: none;
 }
 .mv-icon-showcase__name {
   font-family: var(--font-family-body, 'Work Sans', sans-serif);
@@ -309,6 +300,8 @@ function onAddToCart() {
   .mv-icon-showcase--reversed .mv-icon-showcase__container {
     direction: ltr;
   }
-  .mv-icon-showcase { padding: 40px 0; }
+  .mv-icon-showcase {
+    padding: 40px 0;
+  }
 }
 </style>

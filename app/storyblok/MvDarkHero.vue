@@ -1,11 +1,9 @@
 <script setup>
-import { mediaUrl, isStream, isVideo } from '~/utils/sirenMedia';
+import { mediaUrl } from '~/utils/sirenMedia';
 
 const props = defineProps({ blok: Object });
 
 const src = computed(() => mediaUrl(props.blok?.media, props.blok?.image, props.blok?.image_url));
-const video = computed(() => isVideo(src.value));
-const stream = computed(() => isStream(src.value));
 const pinned = computed(() => Boolean(String(props.blok?.headline || '').trim()));
 const lines = computed(() => String(props.blok?.headline || '').split(/\n|\u2028/).filter(line => line.trim()));
 const href = computed(() => storyblokHref(props.blok?.cta_link));
@@ -18,27 +16,9 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
     :class="{ 'mv-dark-hero--pin': pinned }"
   >
     <div class="mv-dark-hero__media">
-      <iframe
-        v-if="stream"
+      <MvMedia
         :src="src"
-        class="mv-dark-hero__frame"
-        allow="autoplay; encrypted-media; picture-in-picture"
-        allowfullscreen
-        title=""
-      />
-      <video
-        v-else-if="video"
-        :src="src"
-        class="mv-dark-hero__video"
-        autoplay
-        muted
-        loop
-        playsinline
-      />
-      <img
-        v-else-if="src"
-        :src="src"
-        :alt="blok.headline || ''"
+        :alt="blok.media?.alt || blok.image?.alt || blok.headline || ''"
         class="mv-dark-hero__img"
       />
     </div>
@@ -72,8 +52,6 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   position: absolute;
   inset: 0;
 }
-.mv-dark-hero__frame,
-.mv-dark-hero__video,
 .mv-dark-hero__img {
   position: absolute;
   inset: 0;
@@ -95,14 +73,14 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
 .mv-dark-hero__headline {
   margin: 0 0 28px;
   max-width: 11em;
-  font-family: "Libre Caslon Text", "Times New Roman", serif;
+  font-family: 'Libre Caslon Text', 'Times New Roman', serif;
   font-size: 50px;
   font-weight: 400;
   line-height: 50px;
   color: #fff;
 }
 .mv-dark-hero__cta {
-  font-family: "Work Sans", Helvetica, sans-serif;
+  font-family: 'Work Sans', Helvetica, sans-serif;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 1.5px;
@@ -113,8 +91,15 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   padding-bottom: 3px;
 }
 @media (max-width: 768px) {
-  .mv-dark-hero { min-height: 70vh; }
-  .mv-dark-hero__headline { font-size: 36px; line-height: 38px; }
-  .mv-dark-hero__content { padding: 0 20px 36px; }
+  .mv-dark-hero {
+    min-height: 70vh;
+  }
+  .mv-dark-hero__headline {
+    font-size: 36px;
+    line-height: 38px;
+  }
+  .mv-dark-hero__content {
+    padding: 0 20px 36px;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { mediaUrl, isStream, isVideo } from '~/utils/sirenMedia';
+import { mediaUrl } from '~/utils/sirenMedia';
 
 const props = defineProps({ blok: Object });
 
@@ -10,14 +10,10 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
 <template>
   <section v-editable="blok" class="mv-dual-image">
     <div class="mv-dual-image__pane">
-      <iframe v-if="isStream(left)" :src="left" class="mv-dual-image__frame" allow="autoplay; encrypted-media" title="" />
-      <video v-else-if="isVideo(left)" :src="left" class="mv-dual-image__video" autoplay muted loop playsinline />
-      <img v-else-if="left" :src="left" alt="" class="mv-dual-image__img" />
+      <MvMedia :src="left" :alt="blok.media_left?.alt || blok.image_left?.alt || ''" class="mv-dual-image__img" />
     </div>
     <div class="mv-dual-image__pane">
-      <iframe v-if="isStream(right)" :src="right" class="mv-dual-image__frame" allow="autoplay; encrypted-media" title="" />
-      <video v-else-if="isVideo(right)" :src="right" class="mv-dual-image__video" autoplay muted loop playsinline />
-      <img v-else-if="right" :src="right" alt="" class="mv-dual-image__img" />
+      <MvMedia :src="right" :alt="blok.media_right?.alt || blok.image_right?.alt || ''" class="mv-dual-image__img" />
     </div>
   </section>
 </template>
@@ -39,8 +35,6 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
   min-width: 0;
   overflow: hidden;
 }
-.mv-dual-image__frame,
-.mv-dual-image__video,
 .mv-dual-image__img {
   position: absolute;
   inset: 0;
@@ -58,6 +52,8 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
     position: relative;
     top: auto;
   }
-  .mv-dual-image__pane { aspect-ratio: 1; }
+  .mv-dual-image__pane {
+    aspect-ratio: 1;
+  }
 }
 </style>
