@@ -1,11 +1,18 @@
 <script setup>
-defineProps({ blok: Object });
+const props = defineProps({ blok: Object });
+
+const href = computed(() => {
+  const raw = props.blok?.link?.cached_url || props.blok?.link?.url || '';
+  if (!raw) return '#';
+  if (/^https?:\/\//i.test(raw) || raw.startsWith('/')) return raw;
+  return `/${raw}`;
+});
 </script>
 
 <template>
   <a
     v-editable="blok"
-    :href="blok.link?.cached_url ? '/' + blok.link.cached_url : '#'"
+    :href="href"
     class="mv-gift-card"
   >
     <img
