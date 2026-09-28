@@ -225,7 +225,7 @@ function editorUrl(story) {
               <span class="mv-matrix__market">{{ market.label }}</span>
               <span class="mv-matrix__market-note">{{ market.note }}</span>
               <span class="mv-matrix__market-count">
-                {{ market.versions }} versions · {{ market.overrides }} overrides
+                {{ market.versions }} {{ market.versions === 1 ? 'version' : 'versions' }} · {{ market.overrides }} {{ market.overrides === 1 ? 'override' : 'overrides' }}
                 <strong v-if="market.stale" class="mv-matrix__warn">· {{ market.stale }} stale</strong>
                 <strong v-if="market.missing" class="mv-matrix__warn">· {{ market.missing }} missing</strong>
               </span>
