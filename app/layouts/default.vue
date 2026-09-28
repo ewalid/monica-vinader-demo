@@ -222,24 +222,7 @@ watch(route, () => {
       </p>
     </div>
     <slot></slot>
-    <Footer
-      :headline="siteConfig.content.footer_headline"
-      :text-color="siteConfig.content.footer_text_color"
-      :footer-light="siteConfig.content.footer_light"
-      :decoration="siteConfig.content.footer_decoration"
-      :logo="siteConfig.content.footer_logo"
-      :about="siteConfig.content.footer_about"
-      :nav-1-headline="siteConfig.content.footer_nav_1_headline"
-      :nav-2-headline="siteConfig.content.footer_nav_2_headline"
-      :nav-3-headline="siteConfig.content.footer_nav_3_headline"
-      :nav-1="siteConfig.content.footer_nav_1"
-      :nav-2="siteConfig.content.footer_nav_2"
-      :nav-3="siteConfig.content.footer_nav_3"
-      :x="siteConfig.content.x"
-      :instagram="siteConfig.content.instagram"
-      :youtube="siteConfig.content.youtube"
-      :facebook="siteConfig.content.facebook"
-    />
+    <Footer :config="siteConfig.content" />
   </main>
 </template>
 
