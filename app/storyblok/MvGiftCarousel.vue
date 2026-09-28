@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({ blok: Object });
 
+const { isRTL } = useDirection();
 const track = ref(null);
 
 function isRichText(value) {
@@ -18,7 +19,9 @@ function scrollTrack(dir) {
   if (!track.value) return;
   const card = track.value.querySelector('.mv-gift-carousel-item');
   const w = card ? card.offsetWidth + 20 : 260;
-  track.value.scrollBy({ left: dir * w * 2, behavior: 'smooth' });
+  // In RTL, invert so ← / → still match reading-order prev / next
+  const sign = isRTL.value ? -dir : dir;
+  track.value.scrollBy({ left: sign * w * 2, behavior: 'smooth' });
 }
 </script>
 
@@ -69,14 +72,14 @@ function scrollTrack(dir) {
 .mv-gift-carousel__inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 0 0 40px;
+  padding-inline-start: 40px;
   display: grid;
   grid-template-columns: minmax(220px, 28%) 1fr;
   gap: 32px;
   align-items: center;
 }
 .mv-gift-carousel__aside {
-  padding-right: 12px;
+  padding-inline-end: 12px;
 }
 .mv-gift-carousel__headline {
   font-family: var(--font-family-display, 'Cormorant Garamond', serif);
@@ -96,6 +99,9 @@ function scrollTrack(dir) {
 .mv-gift-carousel__arrows {
   display: flex;
   gap: 16px;
+  /* Keep ← → order; in RTL this sits on the inner edge toward the track */
+  direction: ltr;
+  justify-content: flex-start;
 }
 .mv-gift-carousel__arrow {
   border: none;
@@ -117,7 +123,7 @@ function scrollTrack(dir) {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-right: 40px;
+  padding-inline-end: 40px;
 }
 .mv-gift-carousel__track::-webkit-scrollbar {
   display: none;
@@ -126,13 +132,12 @@ function scrollTrack(dir) {
 @media (max-width: 900px) {
   .mv-gift-carousel__inner {
     grid-template-columns: 1fr;
-    padding: 0 24px;
+    padding-inline: 24px;
     gap: 24px;
   }
   .mv-gift-carousel__track {
-    padding-right: 24px;
-    margin: 0 -24px;
-    padding-left: 24px;
+    padding-inline: 24px;
+    margin-inline: -24px;
   }
 }
 </style>

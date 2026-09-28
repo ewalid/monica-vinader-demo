@@ -66,7 +66,7 @@ const href = computed(() => {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #1a1a1a;
-  text-align: left;
+  text-align: start;
 }
 @media (max-width: 768px) {
   .mv-gift-carousel-item { flex: 0 0 180px; }
