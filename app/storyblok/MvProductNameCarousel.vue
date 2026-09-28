@@ -262,6 +262,7 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   line-height: 1.35;
   color: #1a1a1a;
+  text-align: start;
 }
 @media (max-width: 768px) {
   .mv-icon-strip__card { flex-basis: 120px; }

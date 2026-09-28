@@ -4,6 +4,7 @@ import { iconAnchorId, stillFromMediaUrl } from '~/utils/iconStrip';
 
 const props = defineProps({ blok: Object });
 
+const { isRTL } = useDirection();
 const shopify = ref(null);
 const siteConfig = await getSiteConfig();
 const { urlPath } = await getProductsPath();
@@ -167,7 +168,11 @@ function onAddToCart() {
     :id="anchorId || undefined"
     :data-icon-anchor="anchorId || undefined"
     :data-icon-hover="stripHoverSrc || undefined"
-    :class="{ 'mv-icon-showcase--reversed': blok.image_position === 'right', 'mv-icon-showcase--blend': blend }"
+    :class="{
+      'mv-icon-showcase--reversed': blok.image_position === 'right',
+      'mv-icon-showcase--blend': blend,
+      'mv-icon-showcase--rtl': isRTL,
+    }"
     :style="{ '--mv-showcase-bg': background }"
   >
     <div class="mv-icon-showcase__container">
@@ -262,6 +267,13 @@ iframe.mv-icon-showcase__img {
   aspect-ratio: 1 / 1;
   pointer-events: none;
 }
+.mv-icon-showcase__content {
+  text-align: start;
+}
+.mv-icon-showcase--rtl .mv-icon-showcase__content {
+  direction: rtl;
+  text-align: right;
+}
 .mv-icon-showcase__name {
   font-family: var(--font-family-body, 'Work Sans', sans-serif);
   font-size: 14px;
@@ -313,6 +325,11 @@ iframe.mv-icon-showcase__img {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.mv-icon-showcase--rtl .mv-icon-showcase__actions {
+  direction: ltr;
+  justify-content: flex-end;
 }
 .mv-icon-showcase__btn {
   display: inline-flex;
@@ -350,6 +367,9 @@ iframe.mv-icon-showcase__img {
 }
 .mv-icon-showcase__arrow {
   display: inline-block;
+}
+.mv-icon-showcase--rtl .mv-icon-showcase__arrow {
+  transform: scaleX(-1);
 }
 @media (max-width: 768px) {
   .mv-icon-showcase__container {

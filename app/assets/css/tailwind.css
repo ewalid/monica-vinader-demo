@@ -196,12 +196,15 @@
 [dir="rtl"] .mv-icon-showcase__arrow {
   transform: scaleX(-1);
 }
-[dir="rtl"] .mv-icon-showcase__desc,
-[dir="rtl"] .mv-icon-showcase__name,
-[dir="rtl"] .mv-icon-showcase__subtitle,
-[dir="rtl"] .mv-icon-showcase__price,
-[dir="rtl"] .mv-icon-showcase__availability {
+[dir="rtl"] .mv-icons-hero,
+[dir="rtl"] .mv-icon-showcase__content {
   text-align: right;
+}
+[dir="rtl"] .mv-icon-showcase__actions {
+  justify-content: flex-end;
+}
+[dir="rtl"] .mv-icon-strip__label {
+  text-align: start;
 }
 [dir="rtl"] .mv-hdr__inner {
   gap: 0;

@@ -1,9 +1,15 @@
 <script setup>
 defineProps({ blok: Object });
+
+const { isRTL } = useDirection();
 </script>
 
 <template>
-  <section v-editable="blok" class="mv-icons-hero">
+  <section
+    v-editable="blok"
+    class="mv-icons-hero"
+    :class="{ 'mv-icons-hero--rtl': isRTL }"
+  >
     <div class="mv-icons-hero__container">
       <h1 class="mv-icons-hero__headline">{{ blok.headline || 'Seven Icons. A New Chapter.' }}</h1>
       <p v-if="blok.subheadline" class="mv-icons-hero__sub">{{ blok.subheadline }}</p>
@@ -15,7 +21,11 @@ defineProps({ blok: Object });
 .mv-icons-hero {
   background: #faf8f5;
   padding: 72px 28px 28px;
-  text-align: left;
+  text-align: start;
+}
+.mv-icons-hero--rtl {
+  direction: rtl;
+  text-align: right;
 }
 .mv-icons-hero__container {
   max-width: none;
