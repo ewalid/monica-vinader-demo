@@ -19,11 +19,15 @@ const productHandle = computed(() => {
   return props.blok?.shopify_product || shopify.value?.handle || '';
 });
 
-const anchorId = computed(() => iconAnchorId({
-  handle: productHandle.value,
-  productName: props.blok?.product_name,
-  uid: props.blok?._uid,
-}));
+const anchorId = computed(() => {
+  const custom = String(props.blok?.anchor_id || '').trim().replace(/^#/, '');
+  if (custom) { return custom; }
+  return iconAnchorId({
+    handle: productHandle.value,
+    productName: props.blok?.product_name,
+    uid: props.blok?._uid,
+  });
+});
 
 // Strip hover: Shopify lifestyle still → Cloudflare/media still → nothing.
 const stripHoverSrc = computed(() => (

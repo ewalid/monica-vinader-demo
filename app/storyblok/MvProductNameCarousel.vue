@@ -9,8 +9,11 @@ const didDrag = ref(false);
 const hoverByIndex = ref([]);
 const anchorByIndex = ref([]);
 
+const DRAG_THRESHOLD = 12;
+
 let startX = 0;
 let startScroll = 0;
+let activePointerId = null;
 let observer;
 
 function mediaSrc(item) {
@@ -26,13 +29,29 @@ function itemHoverSrc(item, index) {
   );
 }
 
+function normalizeAnchor(value) {
+  return String(value || '').trim().replace(/^#/, '');
+}
+
 function itemAnchor(item, index) {
-  // Prefer the matching showcase on the page (same order), then a slug from the label.
+  const fromCms = normalizeAnchor(item?.scroll_to);
+  if (fromCms) { return fromCms; }
   return (
     anchorByIndex.value[index]
     || iconAnchorId({ label: item?.label, uid: item?._uid })
     || ''
   );
+}
+
+function resolveTarget(item, index) {
+  if (!import.meta.client) { return null; }
+  const anchor = itemAnchor(item, index);
+  if (anchor) {
+    const byId = document.getElementById(anchor);
+    if (byId) { return byId; }
+  }
+  // Fall back to the Nth showcase on the page — same order as the strip.
+  return document.querySelectorAll('.mv-icon-showcase')[index] || null;
 }
 
 function itemHref(item, index) {
@@ -46,29 +65,55 @@ function itemHref(item, index) {
 
 function syncFromShowcases() {
   if (!import.meta.client) { return; }
-  const nodes = [...document.querySelectorAll('.mv-icon-showcase[data-icon-anchor]')];
+  const nodes = [...document.querySelectorAll('.mv-icon-showcase')];
   hoverByIndex.value = nodes.map(node => node.getAttribute('data-icon-hover') || '');
-  anchorByIndex.value = nodes.map(node => node.getAttribute('data-icon-anchor') || '');
+  anchorByIndex.value = nodes.map(node => (
+    node.getAttribute('data-icon-anchor') || node.id || ''
+  ));
+}
+
+function scrollToItem(item, index) {
+  const target = resolveTarget(item, index);
+  if (!target) { return false; }
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const id = target.id || itemAnchor(item, index);
+  if (id) {
+    history.replaceState(null, '', `#${id}`);
+  }
+  return true;
 }
 
 function onPointerDown(event) {
   if (event.button !== 0 || !scroller.value) { return; }
   dragging.value = true;
   didDrag.value = false;
+  activePointerId = event.pointerId;
   startX = event.clientX;
   startScroll = scroller.value.scrollLeft;
-  scroller.value.setPointerCapture(event.pointerId);
+  // Do NOT capture yet — capturing on every press swallows real clicks.
 }
 
 function onPointerMove(event) {
   if (!dragging.value || !scroller.value) { return; }
+  if (activePointerId != null && event.pointerId !== activePointerId) { return; }
   const delta = event.clientX - startX;
-  if (Math.abs(delta) > 6) { didDrag.value = true; }
+  if (!didDrag.value && Math.abs(delta) >= DRAG_THRESHOLD) {
+    didDrag.value = true;
+    try {
+      scroller.value.setPointerCapture(event.pointerId);
+    }
+    catch {
+      // Older browsers / lost pointer — ignore.
+    }
+  }
+  if (!didDrag.value) { return; }
   scroller.value.scrollLeft = startScroll - delta;
 }
 
-function onPointerUp() {
+function onPointerUp(event) {
+  if (activePointerId != null && event.pointerId !== activePointerId) { return; }
   dragging.value = false;
+  activePointerId = null;
 }
 
 function onWheel(event) {
@@ -81,28 +126,22 @@ function onWheel(event) {
 function onCardClick(event, item, index) {
   if (didDrag.value) {
     event.preventDefault();
+    didDrag.value = false;
     return;
   }
-  const anchor = itemAnchor(item, index);
-  if (!anchor) { return; }
-  const target = document.getElementById(anchor);
-  if (!target) { return; }
-  event.preventDefault();
-  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  if (import.meta.client) {
-    history.replaceState(null, '', `#${anchor}`);
+  if (scrollToItem(item, index)) {
+    event.preventDefault();
   }
 }
 
 onMounted(() => {
   scroller.value?.addEventListener('wheel', onWheel, { passive: false });
   syncFromShowcases();
-  // Showcases load Shopify hover stills after mount — watch attribute updates.
   observer = new MutationObserver(syncFromShowcases);
   observer.observe(document.body, {
     subtree: true,
     attributes: true,
-    attributeFilter: ['data-icon-hover', 'data-icon-anchor'],
+    attributeFilter: ['data-icon-hover', 'data-icon-anchor', 'id'],
     childList: true,
   });
 });
@@ -118,7 +157,7 @@ onBeforeUnmount(() => {
     <div
       ref="scroller"
       class="mv-icon-strip__scroller"
-      :class="{ 'mv-icon-strip__scroller--dragging': dragging }"
+      :class="{ 'mv-icon-strip__scroller--dragging': dragging && didDrag }"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
@@ -169,6 +208,7 @@ onBeforeUnmount(() => {
   cursor: grab;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 .mv-icon-strip__scroller::-webkit-scrollbar { display: none; }
 .mv-icon-strip__scroller--dragging {
@@ -179,6 +219,7 @@ onBeforeUnmount(() => {
   flex: 0 0 clamp(148px, 13vw, 240px);
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 .mv-icon-strip__media {
   display: block;
@@ -225,7 +266,6 @@ onBeforeUnmount(() => {
 @media (max-width: 768px) {
   .mv-icon-strip__card { flex-basis: 120px; }
   .mv-icon-strip__scroller { padding: 0 16px 8px; }
-  /* Touch devices: no hover — keep the packshot. Click still scrolls. */
 }
 @media (hover: none) {
   .mv-icon-strip__card--has-hover:hover .mv-icon-strip__img--default { opacity: 1; }
