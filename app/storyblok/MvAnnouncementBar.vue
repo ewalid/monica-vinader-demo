@@ -13,13 +13,14 @@ const bg = computed(() => {
     gold: 'var(--mv-brand-gold, #c4a265)',
     white: '#ffffff',
     cream: 'var(--mv-brand-cream, #faf8f5)',
+    'warm-sand': '#f1eee4',
   };
   return map[props.blok?.background_color] || map.black;
 });
 
 const lightText = computed(() => {
   const c = props.blok?.background_color;
-  return c !== 'white' && c !== 'cream';
+  return c !== 'white' && c !== 'cream' && c !== 'warm-sand';
 });
 
 function startRotate() {
