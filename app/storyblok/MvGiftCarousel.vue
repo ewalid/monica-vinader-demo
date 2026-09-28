@@ -19,14 +19,18 @@ function scrollTrack(dir) {
   if (!track.value) return;
   const card = track.value.querySelector('.mv-gift-carousel-item');
   const w = card ? card.offsetWidth + 20 : 260;
-  // In RTL, invert so ← / → still match reading-order prev / next
+  // In RTL the track is direction:rtl, so positive scrollLeft moves toward "start"
   const sign = isRTL.value ? -dir : dir;
   track.value.scrollBy({ left: sign * w * 2, behavior: 'smooth' });
 }
 </script>
 
 <template>
-  <section v-editable="blok" class="mv-gift-carousel">
+  <section
+    v-editable="blok"
+    class="mv-gift-carousel"
+    :class="{ 'mv-gift-carousel--rtl': isRTL }"
+  >
     <div class="mv-gift-carousel__inner">
       <div class="mv-gift-carousel__aside">
         <h2 v-if="hasHeadline" class="mv-gift-carousel__headline">
@@ -69,6 +73,11 @@ function scrollTrack(dir) {
   background: #faf9f6;
   padding: 64px 0 72px;
 }
+/*
+ * LTR (default): [ headline | products ]
+ * RTL (--rtl):   [ products | headline ] via order — explicit mirror, not
+ * document-direction grid quirks (those inverted EN/AR in the VE).
+ */
 .mv-gift-carousel__inner {
   max-width: 1440px;
   margin: 0 auto;
@@ -77,9 +86,25 @@ function scrollTrack(dir) {
   grid-template-columns: minmax(220px, 28%) 1fr;
   gap: 32px;
   align-items: center;
+  direction: ltr;
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__inner {
+  padding-inline-start: 0;
+  padding-inline-end: 40px;
+  grid-template-columns: 1fr minmax(220px, 28%);
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__aside {
+  order: 2;
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__track {
+  order: 1;
 }
 .mv-gift-carousel__aside {
   padding-inline-end: 12px;
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__aside {
+  padding-inline-end: 0;
+  padding-inline-start: 12px;
 }
 .mv-gift-carousel__headline {
   font-family: var(--font-family-display, 'Cormorant Garamond', serif);
@@ -88,6 +113,11 @@ function scrollTrack(dir) {
   line-height: 1.2;
   color: #1a1a1a;
   margin: 0 0 28px;
+  text-align: start;
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__headline {
+  direction: rtl;
+  text-align: right;
 }
 .mv-gift-carousel__headline :deep(p) {
   margin: 0;
@@ -99,11 +129,10 @@ function scrollTrack(dir) {
 .mv-gift-carousel__arrows {
   display: flex;
   gap: 16px;
-  /* Keep ← → order; align under headline start (left in LTR, right in RTL) */
   direction: ltr;
   justify-content: flex-start;
 }
-:global([dir="rtl"]) .mv-gift-carousel__arrows {
+.mv-gift-carousel--rtl .mv-gift-carousel__arrows {
   justify-content: flex-end;
 }
 .mv-gift-carousel__arrow {
@@ -127,18 +156,31 @@ function scrollTrack(dir) {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding-inline-end: 40px;
+  direction: ltr;
+}
+.mv-gift-carousel--rtl .mv-gift-carousel__track {
+  /* First item sits next to the headline (on the right) */
+  direction: rtl;
+  padding-inline-end: 0;
+  padding-inline-start: 40px;
 }
 .mv-gift-carousel__track::-webkit-scrollbar {
   display: none;
 }
 
 @media (max-width: 900px) {
-  .mv-gift-carousel__inner {
+  .mv-gift-carousel__inner,
+  .mv-gift-carousel--rtl .mv-gift-carousel__inner {
     grid-template-columns: 1fr;
     padding-inline: 24px;
     gap: 24px;
   }
-  .mv-gift-carousel__track {
+  .mv-gift-carousel--rtl .mv-gift-carousel__aside,
+  .mv-gift-carousel--rtl .mv-gift-carousel__track {
+    order: unset;
+  }
+  .mv-gift-carousel__track,
+  .mv-gift-carousel--rtl .mv-gift-carousel__track {
     padding-inline: 24px;
     margin-inline: -24px;
   }

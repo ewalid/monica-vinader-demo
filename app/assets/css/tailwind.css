@@ -206,10 +206,6 @@
 [dir="rtl"] .mv-hdr__inner {
   gap: 0;
 }
-[dir="rtl"] .mv-gift-carousel__arrows {
-  direction: ltr;
-  justify-content: flex-end;
-}
 [dir="rtl"] .mv-gift-carousel-item__title {
   text-align: start;
 }
