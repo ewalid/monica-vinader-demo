@@ -193,3 +193,16 @@
 [dir="rtl"] .mv-editorial-section__content {
   text-align: right;
 }
+[dir="rtl"] .mv-icon-showcase__arrow {
+  transform: scaleX(-1);
+}
+[dir="rtl"] .mv-icon-showcase__desc,
+[dir="rtl"] .mv-icon-showcase__name,
+[dir="rtl"] .mv-icon-showcase__subtitle,
+[dir="rtl"] .mv-icon-showcase__price,
+[dir="rtl"] .mv-icon-showcase__availability {
+  text-align: right;
+}
+[dir="rtl"] .mv-hdr__inner {
+  gap: 0;
+}

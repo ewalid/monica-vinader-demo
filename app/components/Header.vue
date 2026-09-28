@@ -194,7 +194,7 @@ function getNavUrl(item) {
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  margin-right: 28px;
+  margin-inline-end: 28px;
   transition: color 0.3s;
 }
 
@@ -202,6 +202,8 @@ function getNavUrl(item) {
   display: flex;
   align-items: center;
   gap: 22px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .mv-hdr__link {
   font-size: 13px;
@@ -218,7 +220,8 @@ function getNavUrl(item) {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-left: auto;
+  flex-shrink: 0;
+  margin-inline-start: auto;
 }
 
 .mv-hdr__search {
@@ -280,7 +283,7 @@ function getNavUrl(item) {
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 0;
 }
 .mv-hdr__burger span {

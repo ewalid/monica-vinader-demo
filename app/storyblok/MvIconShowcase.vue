@@ -213,7 +213,8 @@ function onAddToCart() {
             :disabled="shopify && !shopify.available"
             @click="onAddToCart"
           >
-            {{ addToCartLabel }} &nbsp;&rarr;
+            {{ addToCartLabel }}
+            <span class="mv-icon-showcase__arrow" aria-hidden="true">&nbsp;&rarr;</span>
           </button>
         </div>
       </div>
@@ -237,11 +238,12 @@ function onAddToCart() {
   gap: 80px;
   align-items: center;
 }
-.mv-icon-showcase--reversed .mv-icon-showcase__container {
-  direction: rtl;
+/* Image on the right: reorder columns without forcing direction (keeps RTL text intact). */
+.mv-icon-showcase--reversed .mv-icon-showcase__media {
+  order: 2;
 }
-.mv-icon-showcase--reversed .mv-icon-showcase__container > * {
-  direction: ltr;
+.mv-icon-showcase--reversed .mv-icon-showcase__content {
+  order: 1;
 }
 .mv-icon-showcase__media {
   overflow: hidden;
@@ -346,14 +348,18 @@ iframe.mv-icon-showcase__img {
   opacity: 0.4;
   cursor: not-allowed;
 }
+.mv-icon-showcase__arrow {
+  display: inline-block;
+}
 @media (max-width: 768px) {
   .mv-icon-showcase__container {
     grid-template-columns: 1fr;
     gap: 32px;
     padding: 0 20px;
   }
-  .mv-icon-showcase--reversed .mv-icon-showcase__container {
-    direction: ltr;
+  .mv-icon-showcase--reversed .mv-icon-showcase__media,
+  .mv-icon-showcase--reversed .mv-icon-showcase__content {
+    order: initial;
   }
   .mv-icon-showcase {
     padding: 40px 0;
