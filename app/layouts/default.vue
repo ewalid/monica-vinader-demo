@@ -173,6 +173,7 @@ watch(route, () => {
       :buttons="siteConfig.content.header_buttons"
       :light="siteConfig.content.header_light"
       :enable-cart="siteConfig.content.enable_cart"
+      :announcement="siteConfig.content.announcement?.[0] || null"
       @toggle-mobile-nav="mobileNavOpen = !mobileNavOpen"
     />
     <MobileNav

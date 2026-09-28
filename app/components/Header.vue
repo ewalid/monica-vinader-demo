@@ -5,41 +5,61 @@ defineProps({
   buttons: Object,
   light: Boolean,
   enableCart: Boolean,
+  announcement: { type: Object, default: null },
 });
 
 defineEmits(['toggleMobileNav']);
 
 const scrolled = ref(false);
-
 const { query } = useRoute();
 const inEditor = computed(() => !!query._storyblok);
 
+// Set by a full-height hero that asks for a transparent nav over itself.
+const heroHeader = useState('mv-hero-header', () => null);
+const overHero = computed(() => !!heroHeader.value?.transparent && !scrolled.value);
+const overHeroLight = computed(() => overHero.value && heroHeader.value?.tone === 'light');
+
 onMounted(() => {
-  window.addEventListener('scroll', () => {
-    scrolled.value = window.scrollY > 10;
-  });
+  const onScroll = () => { scrolled.value = window.scrollY > 10; };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
 });
 
 function getNavUrl(item) {
   const link = item.link;
-  if (!link) return '#';
+  if (!link) { return '#'; }
   if (link.linktype === 'story') {
     const slug = link.story?.full_slug || link.cached_url || '';
     return slug.startsWith('/') ? slug : `/${slug}`;
   }
-  if (link.url) return link.url;
+  if (link.url) { return link.url; }
   const cached = link.cached_url || '';
   return cached.startsWith('/') ? cached : `/${cached}`;
 }
 </script>
 
 <template>
-  <div class="mv-hdr-wrap">
-    <div class="mv-announce">
+  <div
+    class="mv-hdr-wrap"
+    :class="{
+      'mv-hdr-wrap--over-hero': overHero,
+      'mv-hdr-wrap--over-hero-light': overHeroLight,
+      'mv-hdr-wrap--scrolled': scrolled,
+    }"
+  >
+    <StoryblokComponent
+      v-if="announcement?.component"
+      :blok="announcement"
+    />
+    <div
+      v-else
+      class="mv-announce mv-announce--fallback"
+    >
       <span>Up to 25% Off Everything | <u>Online Only</u></span>
     </div>
 
-    <header class="mv-hdr" :class="{ 'mv-hdr--scrolled': scrolled }">
+    <header class="mv-hdr">
       <div class="mv-hdr__inner">
         <NuxtLink
           :to="inEditor ? '' : '/'"
@@ -76,7 +96,7 @@ function getNavUrl(item) {
           </button>
 
           <div v-if="enableCart" class="mv-hdr__cart">
-            <EcommerceHeaderCart :light="false" />
+            <EcommerceHeaderCart :light="overHeroLight" />
           </div>
           <button v-else class="mv-hdr__icon" aria-label="Shopping bag">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -104,8 +124,7 @@ function getNavUrl(item) {
   z-index: 100;
 }
 
-/* ── Announcement strip ── */
-.mv-announce {
+.mv-announce--fallback {
   background: #0e3d3d;
   color: #fff;
   text-align: center;
@@ -115,21 +134,46 @@ function getNavUrl(item) {
   letter-spacing: 0.01em;
   line-height: 1.3;
 }
-.mv-announce u {
+.mv-announce--fallback u {
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   cursor: pointer;
 }
 
-/* ── Main header bar ── */
 .mv-hdr {
   background: #fff;
   border-bottom: 1px solid #eaeaea;
-  transition: box-shadow 0.3s;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, color 0.3s;
 }
-.mv-hdr--scrolled {
+.mv-hdr-wrap--scrolled .mv-hdr {
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
 }
+
+/* Transparent over a full-bleed home hero — solid again once sticky/scrolled. */
+.mv-hdr-wrap--over-hero .mv-hdr {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+.mv-hdr-wrap--over-hero-light .mv-hdr {
+  color: #fff;
+}
+.mv-hdr-wrap--over-hero-light .mv-hdr__logo,
+.mv-hdr-wrap--over-hero-light .mv-hdr__link,
+.mv-hdr-wrap--over-hero-light .mv-hdr__icon,
+.mv-hdr-wrap--over-hero-light .mv-hdr__search-icon {
+  color: #fff;
+}
+.mv-hdr-wrap--over-hero-light .mv-hdr__search {
+  background: rgba(255, 255, 255, 0.18);
+}
+.mv-hdr-wrap--over-hero-light .mv-hdr__search-placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+.mv-hdr-wrap--over-hero-light .mv-hdr__burger span {
+  background: #fff;
+}
+
 .mv-hdr__inner {
   max-width: 1440px;
   margin: 0 auto;
@@ -139,7 +183,6 @@ function getNavUrl(item) {
   height: 56px;
 }
 
-/* ── Logo ── */
 .mv-hdr__logo {
   font-family: var(--font-family-body, sans-serif);
   font-size: 15px;
@@ -151,9 +194,9 @@ function getNavUrl(item) {
   white-space: nowrap;
   flex-shrink: 0;
   margin-right: 28px;
+  transition: color 0.3s;
 }
 
-/* ── Nav ── */
 .mv-hdr__nav {
   display: flex;
   align-items: center;
@@ -165,12 +208,11 @@ function getNavUrl(item) {
   color: #1a1a1a;
   text-decoration: none;
   white-space: nowrap;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, color 0.3s;
   font-family: var(--font-family-body, sans-serif);
 }
 .mv-hdr__link:hover { opacity: 0.55; }
 
-/* ── Right-side actions ── */
 .mv-hdr__actions {
   display: flex;
   align-items: center;
@@ -178,7 +220,6 @@ function getNavUrl(item) {
   margin-left: auto;
 }
 
-/* Search pill */
 .mv-hdr__search {
   display: flex;
   align-items: center;
@@ -190,6 +231,9 @@ function getNavUrl(item) {
   transition: background 0.2s;
 }
 .mv-hdr__search:hover { background: #ece8e0; }
+.mv-hdr-wrap--over-hero-light .mv-hdr__search:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
 .mv-hdr__search-placeholder {
   font-size: 13px;
   color: #999;
@@ -201,9 +245,9 @@ function getNavUrl(item) {
   height: 16px;
   color: #1a1a1a;
   flex-shrink: 0;
+  transition: color 0.3s;
 }
 
-/* Icon buttons */
 .mv-hdr__icon {
   display: flex;
   align-items: center;
@@ -213,6 +257,7 @@ function getNavUrl(item) {
   cursor: pointer;
   color: #1a1a1a;
   padding: 2px;
+  transition: color 0.3s;
 }
 .mv-hdr__icon svg {
   width: 22px;
@@ -224,7 +269,6 @@ function getNavUrl(item) {
   align-items: center;
 }
 
-/* ── Mobile hamburger ── */
 .mv-hdr__burger {
   display: none;
   flex-direction: column;
@@ -243,6 +287,7 @@ function getNavUrl(item) {
   height: 1.5px;
   background: #1a1a1a;
   border-radius: 1px;
+  transition: background 0.3s;
 }
 
 @media (max-width: 1200px) {

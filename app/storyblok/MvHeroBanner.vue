@@ -2,12 +2,13 @@
 import { mediaUrl, resolveMedia } from '~/utils/sirenMedia';
 
 const props = defineProps({ blok: Object });
+const route = useRoute();
+const heroHeader = useState('mv-hero-header', () => null);
 
 const desktopSrc = computed(() => mediaUrl(props.blok?.image));
 const mobileSrc = computed(() => mediaUrl(props.blok?.mobile_image));
 const hasMobile = computed(() => !!mobileSrc.value);
 
-// Map legacy left/center/right to middle-* so old stories keep working.
 const textPosition = computed(() => {
   const raw = String(props.blok?.text_position || 'left');
   if (raw === 'left' || raw === 'center' || raw === 'right') {
@@ -18,12 +19,104 @@ const textPosition = computed(() => {
 
 const textColor = computed(() => props.blok?.text_color || 'light');
 
+const BACKGROUNDS = {
+  'champagne-light': '#f9f6f2',
+  champagne: '#f7f2ec',
+  cream: '#faf8f5',
+  white: '#ffffff',
+  dark: '#1a1a1a',
+};
+const background = computed(() => {
+  const custom = String(props.blok?.background_custom || '').trim();
+  if (props.blok?.background_color === 'custom' && /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(custom)) {
+    return custom;
+  }
+  if (props.blok?.background_color && BACKGROUNDS[props.blok.background_color]) {
+    return BACKGROUNDS[props.blok.background_color];
+  }
+  return '';
+});
+
 const desktopWidth = computed(() => (
   resolveMedia(desktopSrc.value).kind === 'image' ? 1920 : 0
 ));
 const mobileWidth = computed(() => (
   resolveMedia(mobileSrc.value).kind === 'image' ? 750 : 0
 ));
+
+const buttons = computed(() => (props.blok?.buttons || []).filter(b => b?.label));
+const legacyCta = computed(() => {
+  if (buttons.value.length) { return null; }
+  if (!props.blok?.cta_text || !props.blok?.cta_link?.cached_url) { return null; }
+  return {
+    label: props.blok.cta_text,
+    href: hrefFromLink(props.blok.cta_link),
+    style: 'solid',
+  };
+});
+
+const secondaryCta = computed(() => {
+  if (buttons.value.length) { return null; }
+  if (!props.blok?.cta_2_text || !props.blok?.cta_2_link?.cached_url) { return null; }
+  return {
+    label: props.blok.cta_2_text,
+    href: hrefFromLink(props.blok.cta_2_link),
+    style: props.blok?.cta_2_style || 'solid',
+  };
+});
+
+function hrefFromLink(link) {
+  if (!link) { return '#'; }
+  if (link.linktype === 'url' && link.url) { return link.url; }
+  const cached = link.cached_url || link.url || '';
+  if (!cached) { return '#'; }
+  if (/^https?:\/\//i.test(cached)) { return cached; }
+  return `/${String(cached).replace(/^\//, '')}`;
+}
+
+function buttonHref(btn) {
+  return hrefFromLink(btn?.link);
+}
+
+function buttonStyle(btn) {
+  if (btn?.style === 'ghost') { return 'ghost'; }
+  return 'solid';
+}
+
+// Transparent header only on home, only while full-height hero is active, not after scroll.
+const isHome = computed(() => {
+  const slug = Array.isArray(route.params.slug) ? route.params.slug.filter(Boolean) : [];
+  const path = String(route.query.path || '').split('/').filter(Boolean);
+  const parts = slug.length ? slug : path;
+  if (!parts.length) { return true; }
+  return parts.length === 1 && ['home', 'uk', 'us', 'de', 'es', 'fr-be', 'ar'].includes(parts[0]);
+});
+
+const wantsTransparentHeader = computed(() => (
+  !!props.blok?.full_height
+  && !!props.blok?.transparent_header
+  && isHome.value
+));
+
+watch(
+  [wantsTransparentHeader, textColor],
+  () => {
+    if (wantsTransparentHeader.value) {
+      heroHeader.value = {
+        transparent: true,
+        tone: textColor.value === 'light' || textColor.value === 'cream' ? 'light' : 'dark',
+      };
+    }
+    else if (heroHeader.value) {
+      heroHeader.value = null;
+    }
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  if (heroHeader.value) { heroHeader.value = null; }
+});
 </script>
 
 <template>
@@ -36,8 +129,10 @@ const mobileWidth = computed(() => (
       {
         'mv-hero--full': blok.full_height,
         'mv-hero--has-mobile': hasMobile,
+        'mv-hero--under-header': wantsTransparentHeader,
       },
     ]"
+    :style="background ? { background } : undefined"
   >
     <div v-if="desktopSrc" class="mv-hero__media mv-hero__media--desktop">
       <MvMedia
@@ -60,13 +155,42 @@ const mobileWidth = computed(() => (
       <div class="mv-hero__content">
         <h1 v-if="blok.headline" class="mv-hero__headline">{{ blok.headline }}</h1>
         <p v-if="blok.subheadline" class="mv-hero__sub">{{ blok.subheadline }}</p>
-        <a
-          v-if="blok.cta_text && blok.cta_link?.cached_url"
-          :href="blok.cta_link.cached_url.startsWith('http') ? blok.cta_link.cached_url : '/' + String(blok.cta_link.cached_url).replace(/^\//, '')"
-          class="mv-hero__cta"
+
+        <div
+          v-if="buttons.length || legacyCta || secondaryCta"
+          class="mv-hero__actions"
         >
-          {{ blok.cta_text }}
-        </a>
+          <template v-if="buttons.length">
+            <a
+              v-for="btn in buttons"
+              :key="btn._uid"
+              v-editable="btn"
+              :href="buttonHref(btn)"
+              class="mv-hero__cta"
+              :class="`mv-hero__cta--${buttonStyle(btn)}`"
+            >
+              {{ btn.label }}
+            </a>
+          </template>
+          <template v-else>
+            <a
+              v-if="legacyCta"
+              :href="legacyCta.href"
+              class="mv-hero__cta"
+              :class="`mv-hero__cta--${legacyCta.style}`"
+            >
+              {{ legacyCta.label }}
+            </a>
+            <a
+              v-if="secondaryCta"
+              :href="secondaryCta.href"
+              class="mv-hero__cta"
+              :class="`mv-hero__cta--${secondaryCta.style}`"
+            >
+              {{ secondaryCta.label }}
+            </a>
+          </template>
+        </div>
       </div>
     </div>
   </section>
@@ -82,6 +206,12 @@ const mobileWidth = computed(() => (
 }
 .mv-hero--full {
   min-height: calc(100vh - 92px);
+}
+/* Pull under the fixed header so media fills the first viewport like the live site. */
+.mv-hero--full.mv-hero--under-header {
+  min-height: 100vh;
+  margin-top: -6rem; /* body pt-24 */
+  padding-top: 6rem;
 }
 
 .mv-hero__media {
@@ -112,18 +242,18 @@ const mobileWidth = computed(() => (
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 60px 40px;
+  padding: 72px clamp(28px, 5vw, 80px);
   display: flex;
   min-height: inherit;
+  box-sizing: border-box;
 }
 
 .mv-hero__content {
-  max-width: 520px;
+  max-width: 560px;
 }
 
-/* Horizontal */
 .mv-hero--pos-top-left .mv-hero__overlay,
 .mv-hero--pos-middle-left .mv-hero__overlay,
 .mv-hero--pos-bottom-left .mv-hero__overlay {
@@ -139,7 +269,7 @@ const mobileWidth = computed(() => (
 .mv-hero--pos-top-center .mv-hero__content,
 .mv-hero--pos-middle-center .mv-hero__content,
 .mv-hero--pos-bottom-center .mv-hero__content {
-  max-width: 640px;
+  max-width: 680px;
 }
 .mv-hero--pos-top-right .mv-hero__overlay,
 .mv-hero--pos-middle-right .mv-hero__overlay,
@@ -148,7 +278,6 @@ const mobileWidth = computed(() => (
   text-align: right;
 }
 
-/* Vertical */
 .mv-hero--pos-top-left .mv-hero__overlay,
 .mv-hero--pos-top-center .mv-hero__overlay,
 .mv-hero--pos-top-right .mv-hero__overlay {
@@ -165,7 +294,17 @@ const mobileWidth = computed(() => (
   align-items: flex-end;
 }
 
-/* Text colours */
+.mv-hero--pos-top-center .mv-hero__actions,
+.mv-hero--pos-middle-center .mv-hero__actions,
+.mv-hero--pos-bottom-center .mv-hero__actions {
+  justify-content: center;
+}
+.mv-hero--pos-top-right .mv-hero__actions,
+.mv-hero--pos-middle-right .mv-hero__actions,
+.mv-hero--pos-bottom-right .mv-hero__actions {
+  justify-content: flex-end;
+}
+
 .mv-hero--light { color: #fff; }
 .mv-hero--dark { color: #1a1a1a; }
 .mv-hero--gold { color: var(--mv-brand-gold, #c4a265); }
@@ -173,43 +312,79 @@ const mobileWidth = computed(() => (
 
 .mv-hero__headline {
   font-family: var(--font-family-display, serif);
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 300;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
-  margin-bottom: 16px;
+  font-size: clamp(32px, 4.2vw, 52px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  margin: 0 0 14px;
 }
 .mv-hero__sub {
-  font-size: clamp(14px, 1.5vw, 18px);
-  font-weight: 300;
-  line-height: 1.5;
-  margin-bottom: 28px;
-  opacity: 0.9;
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 400;
+  line-height: 1.45;
+  margin: 0 0 28px;
+  opacity: 0.92;
 }
+
+.mv-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .mv-hero__cta {
-  display: inline-block;
-  padding: 14px 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 148px;
+  padding: 14px 28px;
   font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  color: inherit;
-  border: 1px solid currentColor;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
-.mv-hero--light .mv-hero__cta:hover,
-.mv-hero--cream .mv-hero__cta:hover,
-.mv-hero--gold .mv-hero__cta:hover {
-  background: currentColor;
-  color: #1a1a1a;
-}
-.mv-hero--dark .mv-hero__cta:hover {
+.mv-hero__cta--solid {
   background: #1a1a1a;
   color: #fff;
+  border: 1px solid #1a1a1a;
+}
+.mv-hero__cta--solid:hover {
+  background: #000;
+  border-color: #000;
+}
+.mv-hero__cta--ghost {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+}
+.mv-hero__cta--ghost:hover {
+  background: currentColor;
+  color: #fff;
+}
+.mv-hero--light .mv-hero__cta--ghost:hover,
+.mv-hero--cream .mv-hero__cta--ghost:hover {
+  color: #1a1a1a;
+}
+.mv-hero--light .mv-hero__cta--solid,
+.mv-hero--cream .mv-hero__cta--solid {
+  background: #fff;
+  color: #1a1a1a;
+  border-color: #fff;
+}
+.mv-hero--light .mv-hero__cta--solid:hover,
+.mv-hero--cream .mv-hero__cta--solid:hover {
+  background: #f5f5f5;
+  border-color: #f5f5f5;
 }
 
 @media (max-width: 768px) {
-  .mv-hero { min-height: 400px; }
-  .mv-hero__overlay { padding: 40px 20px; }
+  .mv-hero { min-height: 440px; }
+  .mv-hero--full.mv-hero--under-header {
+    min-height: 100svh;
+  }
+  .mv-hero__overlay { padding: 48px 20px; }
+  .mv-hero__cta { min-width: 0; flex: 1 1 auto; }
 }
 </style>
