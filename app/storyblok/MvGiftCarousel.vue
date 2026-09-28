@@ -99,9 +99,12 @@ function scrollTrack(dir) {
 .mv-gift-carousel__arrows {
   display: flex;
   gap: 16px;
-  /* Keep ← → order; in RTL this sits on the inner edge toward the track */
+  /* Keep ← → order; align under headline start (left in LTR, right in RTL) */
   direction: ltr;
   justify-content: flex-start;
+}
+:global([dir="rtl"]) .mv-gift-carousel__arrows {
+  justify-content: flex-end;
 }
 .mv-gift-carousel__arrow {
   border: none;
