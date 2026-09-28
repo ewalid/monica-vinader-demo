@@ -174,6 +174,7 @@ watch(route, () => {
       :light="siteConfig.content.header_light"
       :enable-cart="siteConfig.content.enable_cart"
       :announcement="siteConfig.content.announcement?.[0] || null"
+      :search-placeholder="siteConfig.content.header_search_placeholder || 'Search for a product or finish'"
       @toggle-mobile-nav="mobileNavOpen = !mobileNavOpen"
     />
     <MobileNav
