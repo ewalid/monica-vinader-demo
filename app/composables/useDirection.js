@@ -4,7 +4,9 @@ export function useDirection() {
   const route = useRoute();
 
   const isRTL = computed(() => {
-    const lang = route.query.language || route.params.slug?.[0] || '';
+    const q = route.query._storyblok_lang || route.query.language || '';
+    const fromQuery = Array.isArray(q) ? q[0] : q;
+    const lang = fromQuery || route.params.slug?.[0] || '';
     return RTL_LANGUAGES.some(rtl => lang === rtl || lang.startsWith(rtl + '-'));
   });
 

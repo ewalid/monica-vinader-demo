@@ -1,13 +1,12 @@
+import { shouldStripLanguagePrefix } from '~/composables/getLanguage';
+
 export default async function () {
   let slug = await getSlug();
   let folderPath = '';
 
   if (slug) {
     const language = await getLanguage(slug);
-    /**
-     * If a specific language is requested, the first part of the slug (the language code) needs to be removed
-     */
-    if (language) {
+    if (shouldStripLanguagePrefix(slug, language)) {
       slug = slug.slice(1);
     }
     /**
