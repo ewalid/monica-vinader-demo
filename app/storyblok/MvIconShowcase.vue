@@ -1,5 +1,6 @@
 <script setup>
 import { mediaUrl } from '~/utils/sirenMedia';
+import { iconAnchorId, stillFromMediaUrl } from '~/utils/iconStrip';
 
 const props = defineProps({ blok: Object });
 
@@ -10,6 +11,26 @@ const cartEnabled = computed(() => !!siteConfig.value?.content?.enable_cart);
 const { addToCart } = useCart();
 
 const mediaSrc = computed(() => mediaUrl(props.blok?.image, props.blok?.image_url));
+
+const productHandle = computed(() => {
+  if (usesPicker()) {
+    return pickerItem(props.blok?.shopify_picker)?.handle || shopify.value?.handle || '';
+  }
+  return props.blok?.shopify_product || shopify.value?.handle || '';
+});
+
+const anchorId = computed(() => iconAnchorId({
+  handle: productHandle.value,
+  productName: props.blok?.product_name,
+  uid: props.blok?._uid,
+}));
+
+// Strip hover: Shopify lifestyle still → Cloudflare/media still → nothing.
+const stripHoverSrc = computed(() => (
+  shopify.value?.hoverImage
+  || stillFromMediaUrl(mediaSrc.value)
+  || ''
+));
 
 const BACKGROUNDS = { 'champagne-light': '#f9f6f2', 'champagne': '#f7f2ec', 'white': '#ffffff' };
 const background = computed(() => {
@@ -129,6 +150,9 @@ function onAddToCart() {
   <section
     v-editable="blok"
     class="mv-icon-showcase"
+    :id="anchorId || undefined"
+    :data-icon-anchor="anchorId || undefined"
+    :data-icon-hover="stripHoverSrc || undefined"
     :class="{ 'mv-icon-showcase--reversed': blok.image_position === 'right', 'mv-icon-showcase--blend': blend }"
     :style="{ '--mv-showcase-bg': background }"
   >
@@ -188,6 +212,7 @@ function onAddToCart() {
   background: var(--mv-showcase-bg, #f9f6f2);
   padding: 60px 0;
   border-top: 1px solid #ece9e3;
+  scroll-margin-top: 120px;
 }
 .mv-icon-showcase__container {
   max-width: 1200px;

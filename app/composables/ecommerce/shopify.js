@@ -165,6 +165,8 @@ function showcaseProductFromNode(product) {
   const variant = product.variants?.edges?.[0]?.node;
   const material = product.metafields?.[0]?.value || '';
   const variantTitle = variant?.title && variant.title !== 'Default Title' ? variant.title : '';
+  // Second gallery image is the styled/lifestyle still used on the live icons strip hover.
+  const images = (product.images?.edges || []).map(edge => edge?.node?.url).filter(Boolean);
   return {
     handle: product.handle || '',
     title: product.title,
@@ -173,6 +175,7 @@ function showcaseProductFromNode(product) {
     currency: variant?.price?.currencyCode || 'USD',
     available: Boolean(variant?.availableForSale),
     variantId: variant?.id || '',
+    hoverImage: images[1] || images[0] || '',
   };
 }
 
@@ -181,6 +184,7 @@ const SHOWCASE_PRODUCT_FIELDS = `
   title
   productType
   metafields(identifiers: [{namespace: "custom", key: "material"}]) { value }
+  images(first: 2) { edges { node { url } } }
   variants(first: 1) {
     edges { node { id title availableForSale price { amount currencyCode } } }
   }

@@ -1,26 +1,70 @@
 <script setup>
-defineProps({ blok: Object });
+import { iconAnchorId } from '~/utils/iconStrip';
+
+const props = defineProps({ blok: Object });
 
 const scroller = ref(null);
 const dragging = ref(false);
+const didDrag = ref(false);
+const hoverByIndex = ref([]);
+const anchorByIndex = ref([]);
+
 let startX = 0;
 let startScroll = 0;
+let observer;
 
 function mediaSrc(item) {
   return item?.image?.filename || item?.image_url || '';
 }
 
+function itemHoverSrc(item, index) {
+  return (
+    item?.hover_image?.filename
+    || item?.hover_image_url
+    || hoverByIndex.value[index]
+    || ''
+  );
+}
+
+function itemAnchor(item, index) {
+  // Prefer the matching showcase on the page (same order), then a slug from the label.
+  return (
+    anchorByIndex.value[index]
+    || iconAnchorId({ label: item?.label, uid: item?._uid })
+    || ''
+  );
+}
+
+function itemHref(item, index) {
+  const anchor = itemAnchor(item, index);
+  if (anchor) { return `#${anchor}`; }
+  const cached = item?.link?.cached_url;
+  if (cached) { return `/${String(cached).replace(/^\//, '')}`; }
+  const url = item?.link?.url;
+  return url || undefined;
+}
+
+function syncFromShowcases() {
+  if (!import.meta.client) { return; }
+  const nodes = [...document.querySelectorAll('.mv-icon-showcase[data-icon-anchor]')];
+  hoverByIndex.value = nodes.map(node => node.getAttribute('data-icon-hover') || '');
+  anchorByIndex.value = nodes.map(node => node.getAttribute('data-icon-anchor') || '');
+}
+
 function onPointerDown(event) {
-  if (event.button !== 0 || !scroller.value) return;
+  if (event.button !== 0 || !scroller.value) { return; }
   dragging.value = true;
+  didDrag.value = false;
   startX = event.clientX;
   startScroll = scroller.value.scrollLeft;
   scroller.value.setPointerCapture(event.pointerId);
 }
 
 function onPointerMove(event) {
-  if (!dragging.value || !scroller.value) return;
-  scroller.value.scrollLeft = startScroll - (event.clientX - startX);
+  if (!dragging.value || !scroller.value) { return; }
+  const delta = event.clientX - startX;
+  if (Math.abs(delta) > 6) { didDrag.value = true; }
+  scroller.value.scrollLeft = startScroll - delta;
 }
 
 function onPointerUp() {
@@ -28,17 +72,44 @@ function onPointerUp() {
 }
 
 function onWheel(event) {
-  if (!scroller.value) return;
-  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+  if (!scroller.value) { return; }
+  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) { return; }
   scroller.value.scrollLeft += event.deltaY;
   event.preventDefault();
 }
 
+function onCardClick(event, item, index) {
+  if (didDrag.value) {
+    event.preventDefault();
+    return;
+  }
+  const anchor = itemAnchor(item, index);
+  if (!anchor) { return; }
+  const target = document.getElementById(anchor);
+  if (!target) { return; }
+  event.preventDefault();
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (import.meta.client) {
+    history.replaceState(null, '', `#${anchor}`);
+  }
+}
+
 onMounted(() => {
   scroller.value?.addEventListener('wheel', onWheel, { passive: false });
+  syncFromShowcases();
+  // Showcases load Shopify hover stills after mount — watch attribute updates.
+  observer = new MutationObserver(syncFromShowcases);
+  observer.observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-icon-hover', 'data-icon-anchor'],
+    childList: true,
+  });
 });
+
 onBeforeUnmount(() => {
   scroller.value?.removeEventListener('wheel', onWheel);
+  observer?.disconnect();
 });
 </script>
 
@@ -56,15 +127,26 @@ onBeforeUnmount(() => {
       <a
         v-for="(item, i) in blok.items"
         :key="item._uid || i"
-        :href="item.link?.cached_url ? '/' + item.link.cached_url : undefined"
+        :href="itemHref(item, i)"
         class="mv-icon-strip__card"
+        :class="{ 'mv-icon-strip__card--has-hover': !!itemHoverSrc(item, i) }"
         draggable="false"
+        @click="onCardClick($event, item, i)"
       >
         <span class="mv-icon-strip__media">
           <img
             v-if="mediaSrc(item)"
+            class="mv-icon-strip__img mv-icon-strip__img--default"
             :src="mediaSrc(item)"
             :alt="item.label || ''"
+            draggable="false"
+          />
+          <img
+            v-if="itemHoverSrc(item, i)"
+            class="mv-icon-strip__img mv-icon-strip__img--hover"
+            :src="itemHoverSrc(item, i)"
+            alt=""
+            aria-hidden="true"
             draggable="false"
           />
         </span>
@@ -100,15 +182,34 @@ onBeforeUnmount(() => {
 }
 .mv-icon-strip__media {
   display: block;
+  position: relative;
   aspect-ratio: 1;
   background: #eceae6;
   overflow: hidden;
 }
-.mv-icon-strip__media img {
+.mv-icon-strip__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.mv-icon-strip__img--default {
+  object-fit: contain;
+  opacity: 1;
+}
+.mv-icon-strip__img--hover {
+  opacity: 0;
+}
+.mv-icon-strip__card--has-hover:hover .mv-icon-strip__img--default,
+.mv-icon-strip__card--has-hover:focus-visible .mv-icon-strip__img--default {
+  opacity: 0;
+}
+.mv-icon-strip__card--has-hover:hover .mv-icon-strip__img--hover,
+.mv-icon-strip__card--has-hover:focus-visible .mv-icon-strip__img--hover {
+  opacity: 1;
 }
 .mv-icon-strip__label {
   display: block;
@@ -124,5 +225,10 @@ onBeforeUnmount(() => {
 @media (max-width: 768px) {
   .mv-icon-strip__card { flex-basis: 120px; }
   .mv-icon-strip__scroller { padding: 0 16px 8px; }
+  /* Touch devices: no hover — keep the packshot. Click still scrolls. */
+}
+@media (hover: none) {
+  .mv-icon-strip__card--has-hover:hover .mv-icon-strip__img--default { opacity: 1; }
+  .mv-icon-strip__card--has-hover:hover .mv-icon-strip__img--hover { opacity: 0; }
 }
 </style>
