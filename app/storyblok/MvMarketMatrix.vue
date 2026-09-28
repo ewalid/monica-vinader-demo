@@ -19,12 +19,13 @@ const stories = ref([]);
 const loadedAt = ref(null);
 const showAll = ref(Boolean(props.blok?.show_all));
 
-async function fetchFolder(folder) {
+// One unfiltered read of the whole space. A `starts_with: 'ar/'` filter would be read as the
+// field-level language `ar` (which shares its code with the folder) and return UK pages as ar/uk/….
+async function fetchSpace() {
   const all = [];
-  for (let page = 1; page < 20; page++) {
+  for (let page = 1; page < 50; page++) {
     const response = await storyblokApi.get('cdn/stories', {
       version: 'draft',
-      starts_with: `${folder}/`,
       per_page: 100,
       page,
       cv: Date.now(),
@@ -35,15 +36,15 @@ async function fetchFolder(folder) {
       break;
     }
   }
-  return all;
+  const folders = MARKETS.map(m => m.slug);
+  return all.filter(story => folders.includes(story.full_slug.split('/')[0]));
 }
 
 async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const perFolder = await Promise.all(MARKETS.map(m => fetchFolder(m.slug)));
-    stories.value = perFolder.flat();
+    stories.value = await fetchSpace();
     loadedAt.value = new Date();
   }
   catch (e) {
@@ -64,7 +65,9 @@ function structure(node, out = []) {
     if (node.component) {
       out.push(node.component);
     }
-    Object.values(node).forEach((value) => {
+    // Sorted keys: a clone can return the same slots in a different key order.
+    Object.keys(node).sort().forEach((key) => {
+      const value = node[key];
       if (Array.isArray(value) || (value && typeof value === 'object')) {
         structure(value, out);
       }
@@ -129,11 +132,15 @@ const rows = computed(() => {
 
 const visibleRows = computed(() => (showAll.value ? rows.value : rows.value.filter(r => r.localised || r.required)));
 
+const linkedIds = computed(() => new Set(rows.value.flatMap(r => r.cells.filter(c => c.story).map(c => c.story.id))));
+
 const summary = computed(() => MARKETS.filter(m => m.slug !== MASTER).map((market) => {
   const cells = rows.value.map(r => r.cells.find(c => c.market === market.slug));
   const count = state => cells.filter(c => c.state === state).length;
+  const inFolder = stories.value.filter(s => s.full_slug.startsWith(`${market.slug}/`) && !IGNORED.some(re => re.test(s.full_slug)));
   return {
     ...market,
+    unlinked: inFolder.filter(s => !linkedIds.value.has(s.id)).length,
     versions: cells.filter(c => c.story).length,
     overrides: count('override'),
     stale: count('stale'),
@@ -221,6 +228,9 @@ function editorUrl(story) {
                 {{ market.versions }} versions · {{ market.overrides }} overrides
                 <strong v-if="market.stale" class="mv-matrix__warn">· {{ market.stale }} stale</strong>
                 <strong v-if="market.missing" class="mv-matrix__warn">· {{ market.missing }} missing</strong>
+              </span>
+              <span v-if="market.unlinked" class="mv-matrix__market-note" :title="`Stories in /${market.slug}/ that Dimensions does not link to any UK page. Link them under Config → Alternative versions.`">
+                {{ market.unlinked }} not linked to a UK page
               </span>
             </th>
           </tr>
