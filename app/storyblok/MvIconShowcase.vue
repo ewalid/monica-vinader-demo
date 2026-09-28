@@ -144,6 +144,16 @@ const readMoreHref = computed(() => {
   return '';
 });
 
+const readMoreLabel = computed(() => {
+  const label = String(props.blok?.read_more_label || '').trim();
+  return label || 'Read More';
+});
+
+const addToCartLabel = computed(() => {
+  const label = String(props.blok?.add_to_cart_label || '').trim();
+  return label || 'Add to Cart';
+});
+
 function onAddToCart() {
   if (!cartEnabled.value || !shopify.value?.variantId || !shopify.value.available) { return; }
   addToCart(shopify.value.variantId);
@@ -196,14 +206,14 @@ function onAddToCart() {
             :href="readMoreHref"
             class="mv-icon-showcase__btn mv-icon-showcase__btn--outline"
           >
-            Read More
+            {{ readMoreLabel }}
           </a>
           <button
             class="mv-icon-showcase__btn mv-icon-showcase__btn--solid"
             :disabled="shopify && !shopify.available"
             @click="onAddToCart"
           >
-            Add to Cart &nbsp;&rarr;
+            {{ addToCartLabel }} &nbsp;&rarr;
           </button>
         </div>
       </div>
