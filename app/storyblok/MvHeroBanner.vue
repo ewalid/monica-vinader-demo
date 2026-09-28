@@ -181,10 +181,15 @@ onBeforeUnmount(() => {
 
     <div class="mv-hero__overlay">
       <div class="mv-hero__content">
-        <h1 v-if="hasHeadline" class="mv-hero__headline">
+        <div
+          v-if="hasHeadline"
+          class="mv-hero__headline"
+          role="heading"
+          aria-level="1"
+        >
           <StoryblokRichText v-if="isRichText(blok.headline)" :document="blok.headline" />
           <template v-else>{{ blok.headline }}</template>
-        </h1>
+        </div>
         <p v-if="blok.subheadline" class="mv-hero__sub">{{ blok.subheadline }}</p>
 
         <div
