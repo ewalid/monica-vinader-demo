@@ -83,6 +83,34 @@ function buttonStyle(btn) {
   return 'solid';
 }
 
+function isRichText(value) {
+  return value?.type === 'doc';
+}
+
+function headlinePlain(value) {
+  if (!value) { return ''; }
+  if (typeof value === 'string') { return value; }
+  if (!isRichText(value)) { return ''; }
+  const parts = [];
+  const walk = (node) => {
+    if (!node) { return; }
+    if (node.type === 'text' && node.text) { parts.push(node.text); }
+    if (node.type === 'hard_break') { parts.push(' '); }
+    (node.content || []).forEach(walk);
+  };
+  walk(value);
+  return parts.join('').replace(/\s+/g, ' ').trim();
+}
+
+const hasHeadline = computed(() => {
+  const h = props.blok?.headline;
+  if (!h) { return false; }
+  if (typeof h === 'string') { return !!h.trim(); }
+  return isRichText(h) && !!headlinePlain(h);
+});
+
+const headlineAlt = computed(() => headlinePlain(props.blok?.headline));
+
 // Transparent header only on home, only while full-height hero is active, not after scroll.
 const isHome = computed(() => {
   const slug = Array.isArray(route.params.slug) ? route.params.slug.filter(Boolean) : [];
@@ -137,7 +165,7 @@ onBeforeUnmount(() => {
     <div v-if="desktopSrc" class="mv-hero__media mv-hero__media--desktop">
       <MvMedia
         :src="desktopSrc"
-        :alt="blok.image?.alt || blok.headline || ''"
+        :alt="blok.image?.alt || headlineAlt || ''"
         :width="desktopWidth"
         class="mv-hero__asset"
       />
@@ -145,7 +173,7 @@ onBeforeUnmount(() => {
     <div v-if="mobileSrc" class="mv-hero__media mv-hero__media--mobile">
       <MvMedia
         :src="mobileSrc"
-        :alt="blok.mobile_image?.alt || blok.headline || ''"
+        :alt="blok.mobile_image?.alt || headlineAlt || ''"
         :width="mobileWidth"
         class="mv-hero__asset"
       />
@@ -153,7 +181,10 @@ onBeforeUnmount(() => {
 
     <div class="mv-hero__overlay">
       <div class="mv-hero__content">
-        <h1 v-if="blok.headline" class="mv-hero__headline">{{ blok.headline }}</h1>
+        <h1 v-if="hasHeadline" class="mv-hero__headline">
+          <StoryblokRichText v-if="isRichText(blok.headline)" :document="blok.headline" />
+          <template v-else>{{ blok.headline }}</template>
+        </h1>
         <p v-if="blok.subheadline" class="mv-hero__sub">{{ blok.subheadline }}</p>
 
         <div
@@ -317,6 +348,16 @@ onBeforeUnmount(() => {
   line-height: 1.12;
   letter-spacing: 0.01em;
   margin: 0 0 14px;
+}
+.mv-hero__headline :deep(p) {
+  margin: 0;
+}
+.mv-hero__headline :deep(p + p) {
+  margin-top: 0;
+}
+.mv-hero__headline :deep(br) {
+  display: block;
+  content: '';
 }
 .mv-hero__sub {
   font-size: clamp(15px, 1.4vw, 18px);
