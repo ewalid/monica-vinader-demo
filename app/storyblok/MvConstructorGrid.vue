@@ -1,7 +1,13 @@
 <script setup>
-import { fetchConstructorResults, getConstructorSortOptions } from '~/composables/ecommerce/constructor-mock';
+import {
+  fetchConstructorResults,
+  getConstructorSortOptions,
+  getPriceFacetTests,
+} from '~/composables/ecommerce/constructor-mock';
+import { countryFromSlug, marketFromSlug } from '~/utils/markets';
 
 const props = defineProps({ blok: Object });
+const route = useRoute();
 
 const products = ref([]);
 const sortOptions = ref(getConstructorSortOptions());
@@ -9,38 +15,54 @@ const listing = useListingFilters();
 const loading = ref(true);
 const requestMeta = ref(null);
 
-const FACETS = [
-  {
-    name: 'Material',
-    field: 'material',
-    options: [
-      { value: '14k-gold', label: '14K Solid Gold', test: p => /14k|14ct/.test(hay(p)) },
-      { value: 'gold-vermeil', label: 'Gold Vermeil', test: p => /vermeil/.test(hay(p)) },
-      { value: 'sterling-silver', label: 'Sterling Silver', test: p => /sterling silver|\bsilver\b/.test(hay(p)) && !/vermeil/.test(hay(p)) },
-      { value: 'rose-gold', label: 'Rose Gold', test: p => /rose/.test(hay(p)) },
-    ],
-  },
-  {
-    name: 'Price Range',
-    field: 'price',
-    options: [
-      { value: 'under-100', label: 'Under £100', test: p => Number(p.price) < 100 },
-      { value: '100-250', label: '£100 – £250', test: p => Number(p.price) >= 100 && Number(p.price) <= 250 },
-      { value: '250-500', label: '£250 – £500', test: p => Number(p.price) > 250 && Number(p.price) <= 500 },
-      { value: 'over-500', label: 'Over £500', test: p => Number(p.price) > 500 },
-    ],
-  },
-  {
-    name: 'Collection',
-    field: 'collection',
-    options: [
-      { value: 'siren', label: 'Siren', test: p => /siren/.test(hay(p)) },
-      { value: 'alta', label: 'Alta', test: p => /alta/.test(hay(p)) },
-      { value: 'nura', label: 'Nura', test: p => /nura/.test(hay(p)) },
-      { value: 'fiji', label: 'Fiji', test: p => /fiji/.test(hay(p)) },
-    ],
-  },
-];
+function pageSlug() {
+  if (route.query.path) { return String(route.query.path).split('/').filter(Boolean); }
+  return route.params.slug || [];
+}
+
+const market = computed(() => marketFromSlug(pageSlug()));
+const country = computed(() => countryFromSlug(pageSlug()));
+const locale = computed(() => {
+  const map = { uk: 'en-GB', us: 'en-US', ar: 'ar-AE', de: 'de-DE', es: 'es-ES', 'fr-be': 'fr-BE' };
+  return map[market.value] || 'en-GB';
+});
+
+const currency = computed(() => (
+  requestMeta.value?.currency
+  || products.value[0]?.priceCurrency
+  || (country.value === 'AE' ? 'AED' : country.value === 'US' ? 'USD' : 'GBP')
+));
+
+const FACETS = computed(() => {
+  const priceOptions = getPriceFacetTests(currency.value);
+  return [
+    {
+      name: 'Material',
+      field: 'material',
+      options: [
+        { value: '14k-gold', label: '14K Solid Gold', test: p => /14k|14ct/.test(hay(p)) },
+        { value: 'gold-vermeil', label: 'Gold Vermeil', test: p => /vermeil/.test(hay(p)) },
+        { value: 'sterling-silver', label: 'Sterling Silver', test: p => /sterling silver|\bsilver\b/.test(hay(p)) && !/vermeil/.test(hay(p)) },
+        { value: 'rose-gold', label: 'Rose Gold', test: p => /rose/.test(hay(p)) },
+      ],
+    },
+    {
+      name: 'Price Range',
+      field: 'price',
+      options: priceOptions,
+    },
+    {
+      name: 'Collection',
+      field: 'collection',
+      options: [
+        { value: 'siren', label: 'Siren', test: p => /siren/.test(hay(p)) },
+        { value: 'alta', label: 'Alta', test: p => /alta/.test(hay(p)) },
+        { value: 'nura', label: 'Nura', test: p => /nura/.test(hay(p)) },
+        { value: 'fiji', label: 'Fiji', test: p => /fiji/.test(hay(p)) },
+      ],
+    },
+  ];
+});
 
 function hay(product) {
   return `${product.materialText || ''} ${product.title || ''} ${product.productType || ''} ${(product.tags || []).join(' ')}`.toLowerCase();
@@ -57,7 +79,21 @@ function matchesPill(product, pill) {
   return true;
 }
 
-const facets = computed(() => FACETS.map(group => ({
+function formatPrice(amount, currencyCode) {
+  const locales = { GBP: 'en-GB', USD: 'en-US', AED: 'en-AE' };
+  try {
+    return new Intl.NumberFormat(locales[currencyCode] || locale.value || 'en-GB', {
+      style: 'currency',
+      currency: currencyCode || 'GBP',
+      maximumFractionDigits: 0,
+    }).format(Number(amount) || 0);
+  }
+  catch {
+    return `${currencyCode || ''} ${amount}`;
+  }
+}
+
+const facets = computed(() => FACETS.value.map(group => ({
   ...group,
   options: group.options.map(opt => ({
     ...opt,
@@ -70,7 +106,7 @@ const visibleProducts = computed(() => {
   let list = products.value.filter((product) => {
     const groupsOk = Object.entries(selected).every(([field, values]) => {
       if (!values?.length) return true;
-      const group = FACETS.find(item => item.field === field);
+      const group = FACETS.value.find(item => item.field === field);
       return values.some(value => group?.options.find(opt => opt.value === value)?.test(product));
     });
     if (!groupsOk) return false;
@@ -86,12 +122,22 @@ const visibleProducts = computed(() => {
   return list;
 });
 
+function productHref(slug) {
+  const prefix = market.value ? `/${market.value}` : '';
+  return `${prefix}/products/${slug}`;
+}
+
 async function loadProducts() {
   loading.value = true;
   try {
     const handle = props.blok.collection_handle || '';
     const max = parseInt(props.blok.max_products) || 20;
-    const result = await fetchConstructorResults(handle, { maxProducts: max });
+    const result = await fetchConstructorResults(handle, {
+      maxProducts: max,
+      country: country.value,
+      market: market.value,
+      locale: locale.value,
+    });
     products.value = result.response.results;
     requestMeta.value = result.meta;
   } catch (e) {
@@ -101,7 +147,7 @@ async function loadProducts() {
   }
 }
 
-onMounted(loadProducts);
+watch([market, country, locale, () => props.blok.collection_handle, () => props.blok.max_products], loadProducts, { immediate: true });
 
 function toggleFacet(field, value) {
   const facetsState = { ...(listing.value.facets || {}) };
@@ -196,7 +242,10 @@ const gridItems = computed(() => {
           <div class="mv-cnstr__toolbar">
             <span class="mv-cnstr__result-count">
               {{ visibleProducts.length }} products
-              <span v-if="requestMeta" class="mv-cnstr__latency">({{ requestMeta.latency_ms }}ms)</span>
+              <span v-if="requestMeta" class="mv-cnstr__latency">
+                ({{ requestMeta.latency_ms }}ms
+                <template v-if="requestMeta.market"> · {{ requestMeta.market }}/{{ requestMeta.locale }} · {{ requestMeta.currency }}</template>)
+              </span>
             </span>
             <select class="mv-cnstr__sort" :value="listing.sort" @change="changeSort($event.target.value)">
               <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
@@ -212,7 +261,7 @@ const gridItems = computed(() => {
               <!-- Product card -->
               <a
                 v-if="item.type === 'product'"
-                :href="`/products/${item.data.slug}`"
+                :href="productHref(item.data.slug)"
                 class="mv-cnstr__pcard"
               >
                 <div class="mv-cnstr__pcard-badge" v-if="item.data.constructor_strategy === 'promoted'">
@@ -225,7 +274,7 @@ const gridItems = computed(() => {
                 <div class="mv-cnstr__pcard-info">
                   <h3 class="mv-cnstr__pcard-title">{{ item.data.title }}</h3>
                   <p class="mv-cnstr__pcard-price">
-                    {{ item.data.priceCurrency === 'GBP' ? '£' : '$' }}{{ item.data.price }}
+                    {{ formatPrice(item.data.price, item.data.priceCurrency || currency) }}
                   </p>
                 </div>
               </a>
