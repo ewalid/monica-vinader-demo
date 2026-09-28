@@ -11,6 +11,17 @@ const { addToCart } = useCart();
 
 const mediaSrc = computed(() => mediaUrl(props.blok?.image, props.blok?.image_url));
 
+const BACKGROUNDS = { 'champagne-light': '#f9f6f2', 'champagne': '#f7f2ec', 'white': '#ffffff' };
+const background = computed(() => {
+  const custom = String(props.blok?.background_custom || '').trim();
+  if (props.blok?.background_color === 'custom' && /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(custom)) {
+    return custom;
+  }
+  return BACKGROUNDS[props.blok?.background_color] || BACKGROUNDS['champagne-light'];
+});
+// Blocks saved before the field existed have no value; blend them like the live site does.
+const blend = computed(() => props.blok?.blend_media !== false);
+
 const route = useRoute();
 
 function formatMoney(amount, currency) {
@@ -118,7 +129,8 @@ function onAddToCart() {
   <section
     v-editable="blok"
     class="mv-icon-showcase"
-    :class="{ 'mv-icon-showcase--reversed': blok.image_position === 'right' }"
+    :class="{ 'mv-icon-showcase--reversed': blok.image_position === 'right', 'mv-icon-showcase--blend': blend }"
+    :style="{ '--mv-showcase-bg': background }"
   >
     <div class="mv-icon-showcase__container">
       <div class="mv-icon-showcase__media">
@@ -173,7 +185,7 @@ function onAddToCart() {
 
 <style scoped>
 .mv-icon-showcase {
-  background: #faf8f5;
+  background: var(--mv-showcase-bg, #f9f6f2);
   padding: 60px 0;
   border-top: 1px solid #ece9e3;
 }
@@ -194,6 +206,10 @@ function onAddToCart() {
 }
 .mv-icon-showcase__media {
   overflow: hidden;
+}
+/* Multiply turns the white backdrop baked into packshot videos into the section colour. */
+.mv-icon-showcase--blend .mv-icon-showcase__img {
+  mix-blend-mode: multiply;
 }
 .mv-icon-showcase__img {
   width: 100%;
