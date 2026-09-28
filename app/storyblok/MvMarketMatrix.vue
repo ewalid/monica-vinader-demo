@@ -142,7 +142,7 @@ const summary = computed(() => MARKETS.filter(m => m.slug !== MASTER).map((marke
 }));
 
 const LABELS = {
-  copy: 'Same as master',
+  copy: 'Follows master',
   override: 'Override',
   stale: 'Stale',
   none: 'No version',
@@ -196,7 +196,7 @@ function editorUrl(story) {
     </header>
 
     <ul class="mv-matrix__legend">
-      <li><span class="mv-chip mv-chip--copy">Same as master</span> own version, identical block structure</li>
+      <li><span class="mv-chip mv-chip--copy">Follows master</span> own version (copy or translation), same blocks in the same order</li>
       <li><span class="mv-chip mv-chip--override">Override</span> own version, different blocks or order</li>
       <li><span class="mv-chip mv-chip--stale">Stale</span> master published after this version last changed</li>
       <li><span class="mv-chip mv-chip--none">No version</span> market has no copy of this page</li>
