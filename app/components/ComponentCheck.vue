@@ -13,7 +13,7 @@ const componentExists = component =>
         'mv-hide-tablet': blok.hide_on_tablet,
         'mv-hide-desktop': blok.hide_on_desktop,
       },
-      { 'mv-stack-pass': ['mv-dark-hero', 'mv-dual-image', 'mv-large-text', 'mv-three-cards'].includes(blok.component) },
+      { 'mv-stack-pass': ['mv-dark-hero', 'mv-dual-image', 'mv-large-text', 'mv-siren-scroll-tile', 'mv-three-cards'].includes(blok.component) },
     ]"
   >
     <StoryblokComponent

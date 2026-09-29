@@ -62,6 +62,16 @@ const animate = computed(() => pickBreakpointBool(props.blok, 'enable_animation'
   object-fit: cover;
   pointer-events: none;
 }
+.mv-dual-image__pane :deep(video),
+.mv-dual-image__pane :deep(iframe) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+  pointer-events: none;
+}
 @media (max-width: 640px) {
   .mv-dual-image {
     grid-template-columns: 1fr;
