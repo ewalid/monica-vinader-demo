@@ -1,5 +1,13 @@
 <script setup>
-defineProps({ blok: Object, uuid: String });
+const props = defineProps({ blok: Object, uuid: String });
+
+const forceRtl = useState('forceRtl', () => false);
+watch(
+  () => props.blok?.force_rtl,
+  (value) => { forceRtl.value = Boolean(value); },
+  { immediate: true },
+);
+onBeforeUnmount(() => { forceRtl.value = false; });
 </script>
 
 <template>

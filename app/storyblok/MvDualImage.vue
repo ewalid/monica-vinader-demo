@@ -1,12 +1,21 @@
 <script setup>
 import { mediaUrl } from '~/utils/sirenMedia';
+import {
+  pickBreakpointBool,
+  pickBreakpointField,
+  useViewportBreakpoint,
+} from '~/composables/useViewportBreakpoint';
 
 const props = defineProps({ blok: Object });
+const breakpoint = useViewportBreakpoint();
 
-const left = computed(() => mediaUrl(props.blok?.media_left, props.blok?.image_left, props.blok?.image_left_url, props.blok?.image_1_url));
-const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image_right, props.blok?.image_right_url, props.blok?.image_2_url));
-/** Default on — missing/undefined keeps Siren sticky behaviour. */
-const animate = computed(() => props.blok?.enable_animation !== false);
+const leftAsset = computed(() => pickBreakpointField(props.blok, 'image_left', breakpoint.value));
+const leftUrl = computed(() => pickBreakpointField(props.blok, 'image_left_url', breakpoint.value));
+const rightAsset = computed(() => pickBreakpointField(props.blok, 'image_right', breakpoint.value));
+const rightUrl = computed(() => pickBreakpointField(props.blok, 'image_right_url', breakpoint.value));
+const left = computed(() => mediaUrl(leftAsset.value, leftUrl.value));
+const right = computed(() => mediaUrl(rightAsset.value, rightUrl.value));
+const animate = computed(() => pickBreakpointBool(props.blok, 'enable_animation', breakpoint.value, true));
 </script>
 
 <template>
@@ -16,10 +25,10 @@ const animate = computed(() => props.blok?.enable_animation !== false);
     :class="{ 'mv-dual-image--animate': animate }"
   >
     <div class="mv-dual-image__pane">
-      <MvMedia :src="left" :alt="blok.media_left?.alt || blok.image_left?.alt || ''" class="mv-dual-image__img" />
+      <MvMedia :src="left" :alt="leftAsset?.alt || ''" class="mv-dual-image__img" />
     </div>
     <div class="mv-dual-image__pane">
-      <MvMedia :src="right" :alt="blok.media_right?.alt || blok.image_right?.alt || ''" class="mv-dual-image__img" />
+      <MvMedia :src="right" :alt="rightAsset?.alt || ''" class="mv-dual-image__img" />
     </div>
   </section>
 </template>

@@ -2,20 +2,17 @@
 defineProps({ blok: Object, index: Number });
 const componentExists = component =>
   typeof resolveComponent(component) !== 'string';
-
-const visibilityClass = computed(() => {
-  const classes = [];
-  if (arguments[0]?.blok?.hide_on_mobile) classes.push('mv-hide-mobile');
-  if (arguments[0]?.blok?.hide_on_desktop) classes.push('mv-hide-desktop');
-  return classes.join(' ');
-});
 </script>
 
 <template>
   <div
     v-if="componentExists(blok.component)"
     :class="[
-      { 'mv-hide-mobile': blok.hide_on_mobile, 'mv-hide-desktop': blok.hide_on_desktop },
+      {
+        'mv-hide-mobile': blok.hide_on_mobile,
+        'mv-hide-tablet': blok.hide_on_tablet,
+        'mv-hide-desktop': blok.hide_on_desktop,
+      },
       { 'mv-stack-pass': ['mv-dark-hero', 'mv-dual-image', 'mv-large-text', 'mv-three-cards'].includes(blok.component) },
     ]"
   >
@@ -49,10 +46,13 @@ const visibilityClass = computed(() => {
 
 <style>
 .mv-stack-pass { display: contents; }
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .mv-hide-mobile { display: none !important; }
 }
-@media (min-width: 769px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mv-hide-tablet { display: none !important; }
+}
+@media (min-width: 1024px) {
   .mv-hide-desktop { display: none !important; }
 }
 </style>

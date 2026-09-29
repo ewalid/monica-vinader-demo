@@ -1,7 +1,13 @@
 <script setup>
 import { renderRichText } from '@storyblok/vue';
+import {
+  pickBreakpointBool,
+  pickBreakpointField,
+  useViewportBreakpoint,
+} from '~/composables/useViewportBreakpoint';
 
 const props = defineProps({ blok: Object });
+const breakpoint = useViewportBreakpoint();
 
 function plainToHtml(raw) {
   return String(raw || '')
@@ -13,18 +19,17 @@ function plainToHtml(raw) {
     .join('');
 }
 
+const textValue = computed(() => pickBreakpointField(props.blok, 'text', breakpoint.value));
 const rendered = computed(() => {
-  const text = props.blok?.text;
+  const text = textValue.value;
   if (!text) return '';
-  if (typeof text === 'object') {
-    return renderRichText(text) || '';
-  }
+  if (typeof text === 'object') return renderRichText(text) || '';
   const raw = String(text);
   if (raw.includes('<p')) return raw;
   return plainToHtml(raw);
 });
-/** Default on — keeps Siren overlay stacking; off = flat static section. */
-const animate = computed(() => props.blok?.enable_animation !== false);
+const darkBg = computed(() => pickBreakpointBool(props.blok, 'dark_bg', breakpoint.value, false));
+const animate = computed(() => pickBreakpointBool(props.blok, 'enable_animation', breakpoint.value, true));
 </script>
 
 <template>
@@ -32,7 +37,7 @@ const animate = computed(() => props.blok?.enable_animation !== false);
     v-editable="blok"
     class="mv-large-text"
     :class="{
-      'mv-large-text--dark': blok.dark_bg,
+      'mv-large-text--dark': darkBg,
       'mv-large-text--animate': animate,
     }"
   >

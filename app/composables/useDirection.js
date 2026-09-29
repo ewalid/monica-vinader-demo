@@ -7,8 +7,11 @@ function isRtlCode(code) {
 
 export function useDirection() {
   const route = useRoute();
+  const forceRtl = useState('forceRtl', () => false);
 
   const isRTL = computed(() => {
+    if (forceRtl.value) return true;
+
     // Market folder wins (ar/guides/… must stay RTL even if VE language = Default)
     const pathHead
       = route.params.slug?.[0]
@@ -30,5 +33,5 @@ export function useDirection() {
     }, { immediate: true });
   }
 
-  return { isRTL, dir };
+  return { isRTL, dir, forceRtl };
 }

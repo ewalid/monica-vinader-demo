@@ -1,15 +1,23 @@
 <script setup>
 import { mediaUrl, resolveMedia } from '~/utils/sirenMedia';
+import {
+  pickBreakpointField,
+  useViewportBreakpoint,
+} from '~/composables/useViewportBreakpoint';
 
 const props = defineProps({ blok: Object });
+const breakpoint = useViewportBreakpoint();
 
-const desktopSrc = computed(() => mediaUrl(props.blok?.media, props.blok?.image, props.blok?.image_url));
-const mobileSrc = computed(() => mediaUrl(props.blok?.media_mobile, props.blok?.image_mobile, props.blok?.image_mobile_url));
-const hasMobileOverride = computed(() => Boolean(mobileSrc.value));
-const desktopIsEmbed = computed(() => resolveMedia(desktopSrc.value).kind === 'embed');
-const pinned = computed(() => Boolean(String(props.blok?.headline || '').trim()));
-const lines = computed(() => String(props.blok?.headline || '').split(/\n|\u2028/).filter(line => line.trim()));
-const href = computed(() => storyblokHref(props.blok?.cta_link));
+const headline = computed(() => pickBreakpointField(props.blok, 'headline', breakpoint.value) || '');
+const media = computed(() => pickBreakpointField(props.blok, 'image', breakpoint.value));
+const mediaSrc = computed(() => mediaUrl(media.value));
+const ctaText = computed(() => pickBreakpointField(props.blok, 'cta_text', breakpoint.value) || '');
+const ctaLink = computed(() => pickBreakpointField(props.blok, 'cta_link', breakpoint.value));
+const href = computed(() => storyblokHref(ctaLink.value));
+const pinned = computed(() => Boolean(String(headline.value || '').trim()));
+const lines = computed(() => String(headline.value || '').split(/\n|\u2028/).filter(line => line.trim()));
+const isEmbed = computed(() => resolveMedia(mediaSrc.value).kind === 'embed');
+const alt = computed(() => media.value?.alt || headline.value || '');
 </script>
 
 <template>
@@ -18,34 +26,24 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
     class="mv-dark-hero"
     :class="{
       'mv-dark-hero--pin': pinned,
-      'mv-dark-hero--has-mobile': hasMobileOverride,
+      'mv-dark-hero--embed-cover': isEmbed,
     }"
   >
-    <div
-      class="mv-dark-hero__media mv-dark-hero__media--desktop"
-      :class="{ 'mv-dark-hero__media--embed-cover': desktopIsEmbed && !hasMobileOverride }"
-    >
+    <div class="mv-dark-hero__media">
       <MvMedia
-        :src="desktopSrc"
-        :alt="blok.media?.alt || blok.image?.alt || blok.headline || ''"
+        :src="mediaSrc"
+        :alt="alt"
         class="mv-dark-hero__img"
       />
     </div>
-    <div v-if="hasMobileOverride" class="mv-dark-hero__media mv-dark-hero__media--mobile">
-      <MvMedia
-        :src="mobileSrc"
-        :alt="blok.media_mobile?.alt || blok.image_mobile?.alt || blok.headline || ''"
-        class="mv-dark-hero__img"
-      />
-    </div>
-    <div v-if="lines.length || blok.cta_text" class="mv-dark-hero__content">
+    <div v-if="lines.length || ctaText" class="mv-dark-hero__content">
       <h1 v-if="lines.length" class="mv-dark-hero__headline">
         <template v-for="(line, index) in lines" :key="index">
           <br v-if="index" />{{ line }}
         </template>
       </h1>
-      <a v-if="blok.cta_text && href" :href="href" class="mv-dark-hero__cta">
-        {{ blok.cta_text }}
+      <a v-if="ctaText && href" :href="href" class="mv-dark-hero__cta">
+        {{ ctaText }}
       </a>
     </div>
   </section>
@@ -70,9 +68,6 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   overflow: hidden;
   container-type: size;
 }
-.mv-dark-hero__media--mobile {
-  display: none;
-}
 .mv-dark-hero__img {
   position: absolute;
   inset: 0;
@@ -82,8 +77,7 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   object-fit: cover;
   pointer-events: none;
 }
-/* Landscape Stream/YouTube iframes ignore object-fit — scale to cover when no mobile asset. */
-.mv-dark-hero__media--embed-cover :deep(.mv-media--embed) {
+.mv-dark-hero--embed-cover :deep(.mv-media--embed) {
   inset: auto;
   top: 50%;
   left: 50%;
@@ -123,12 +117,6 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
 @media (max-width: 768px) {
   .mv-dark-hero {
     min-height: 70vh;
-  }
-  .mv-dark-hero--has-mobile .mv-dark-hero__media--desktop {
-    display: none;
-  }
-  .mv-dark-hero__media--mobile {
-    display: block;
   }
   .mv-dark-hero__headline {
     font-size: 36px;
