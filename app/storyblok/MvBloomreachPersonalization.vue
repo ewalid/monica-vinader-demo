@@ -2,11 +2,24 @@
 import { getBloomreachSegments, resolveBloomreachSegment } from '~/composables/ecommerce/bloomreach-mock';
 
 const props = defineProps({ blok: Object });
+const route = useRoute();
 
 const segments = getBloomreachSegments();
 const activeSegment = ref(props.blok.default_segment || 'new-visitor');
 const resolution = ref(null);
-const showDebug = ref(true);
+
+// Demo chrome only in Storyblok Visual Editor, or with ?br_debug=1 for live demos.
+const debugAllowed = computed(() => {
+  const q = route.query || {};
+  if (q.br_debug === '1' || q.br_debug === 'true') return true;
+  return ['_storyblok', '_storyblok_tk', '_storyblok_release', '_storyblok_rl', '_storyblok_lang']
+    .some(key => q[key] !== undefined);
+});
+const showDebug = ref(false);
+
+watch(debugAllowed, (allowed) => {
+  showDebug.value = allowed;
+}, { immediate: true });
 
 function selectSegment(key) {
   activeSegment.value = key;
@@ -75,8 +88,12 @@ const visibleVariants = computed(() => {
       </div>
     </div>
 
-    <!-- Reopen debug button -->
-    <button v-if="!showDebug" class="mv-bloom__debug-reopen" @click="showDebug = true">
+    <!-- Reopen debug button (editor / ?br_debug=1 only) -->
+    <button
+      v-if="debugAllowed && !showDebug"
+      class="mv-bloom__debug-reopen"
+      @click="showDebug = true"
+    >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke="#00B4D8" stroke-width="2"/>
         <circle cx="12" cy="12" r="4" fill="#00B4D8"/>
