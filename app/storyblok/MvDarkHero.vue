@@ -1,9 +1,12 @@
 <script setup>
-import { mediaUrl } from '~/utils/sirenMedia';
+import { mediaUrl, resolveMedia } from '~/utils/sirenMedia';
 
 const props = defineProps({ blok: Object });
 
-const src = computed(() => mediaUrl(props.blok?.media, props.blok?.image, props.blok?.image_url));
+const desktopSrc = computed(() => mediaUrl(props.blok?.media, props.blok?.image, props.blok?.image_url));
+const mobileSrc = computed(() => mediaUrl(props.blok?.media_mobile, props.blok?.image_mobile, props.blok?.image_mobile_url));
+const hasMobileOverride = computed(() => Boolean(mobileSrc.value));
+const desktopIsEmbed = computed(() => resolveMedia(desktopSrc.value).kind === 'embed');
 const pinned = computed(() => Boolean(String(props.blok?.headline || '').trim()));
 const lines = computed(() => String(props.blok?.headline || '').split(/\n|\u2028/).filter(line => line.trim()));
 const href = computed(() => storyblokHref(props.blok?.cta_link));
@@ -13,12 +16,25 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   <section
     v-editable="blok"
     class="mv-dark-hero"
-    :class="{ 'mv-dark-hero--pin': pinned }"
+    :class="{
+      'mv-dark-hero--pin': pinned,
+      'mv-dark-hero--has-mobile': hasMobileOverride,
+    }"
   >
-    <div class="mv-dark-hero__media">
+    <div
+      class="mv-dark-hero__media mv-dark-hero__media--desktop"
+      :class="{ 'mv-dark-hero__media--embed-cover': desktopIsEmbed && !hasMobileOverride }"
+    >
       <MvMedia
-        :src="src"
+        :src="desktopSrc"
         :alt="blok.media?.alt || blok.image?.alt || blok.headline || ''"
+        class="mv-dark-hero__img"
+      />
+    </div>
+    <div v-if="hasMobileOverride" class="mv-dark-hero__media mv-dark-hero__media--mobile">
+      <MvMedia
+        :src="mobileSrc"
+        :alt="blok.media_mobile?.alt || blok.image_mobile?.alt || blok.headline || ''"
         class="mv-dark-hero__img"
       />
     </div>
@@ -51,6 +67,11 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
 .mv-dark-hero__media {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  container-type: size;
+}
+.mv-dark-hero__media--mobile {
+  display: none;
 }
 .mv-dark-hero__img {
   position: absolute;
@@ -60,6 +81,15 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
   border: 0;
   object-fit: cover;
   pointer-events: none;
+}
+/* Landscape Stream/YouTube iframes ignore object-fit — scale to cover when no mobile asset. */
+.mv-dark-hero__media--embed-cover :deep(.mv-media--embed) {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, calc(100cqh * 16 / 9));
+  height: max(100cqh, calc(100cqw * 9 / 16));
+  transform: translate(-50%, -50%);
 }
 .mv-dark-hero__content {
   position: absolute;
@@ -93,6 +123,12 @@ const href = computed(() => storyblokHref(props.blok?.cta_link));
 @media (max-width: 768px) {
   .mv-dark-hero {
     min-height: 70vh;
+  }
+  .mv-dark-hero--has-mobile .mv-dark-hero__media--desktop {
+    display: none;
+  }
+  .mv-dark-hero__media--mobile {
+    display: block;
   }
   .mv-dark-hero__headline {
     font-size: 36px;
