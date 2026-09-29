@@ -23,13 +23,18 @@ const rendered = computed(() => {
   if (raw.includes('<p')) return raw;
   return plainToHtml(raw);
 });
+/** Default on — keeps Siren overlay stacking; off = flat static section. */
+const animate = computed(() => props.blok?.enable_animation !== false);
 </script>
 
 <template>
   <section
     v-editable="blok"
     class="mv-large-text"
-    :class="{ 'mv-large-text--dark': blok.dark_bg }"
+    :class="{
+      'mv-large-text--dark': blok.dark_bg,
+      'mv-large-text--animate': animate,
+    }"
   >
     <div v-if="rendered" class="mv-large-text__container" v-html="rendered" />
   </section>
@@ -38,10 +43,13 @@ const rendered = computed(() => {
 <style scoped>
 .mv-large-text {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   background: #fff;
   color: #000;
   padding: 90px 40px;
+}
+.mv-large-text--animate {
+  z-index: 1;
 }
 .mv-large-text--dark {
   background: #1a1a1a;

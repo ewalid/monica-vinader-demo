@@ -5,10 +5,16 @@ const props = defineProps({ blok: Object });
 
 const left = computed(() => mediaUrl(props.blok?.media_left, props.blok?.image_left, props.blok?.image_left_url, props.blok?.image_1_url));
 const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image_right, props.blok?.image_right_url, props.blok?.image_2_url));
+/** Default on — missing/undefined keeps Siren sticky behaviour. */
+const animate = computed(() => props.blok?.enable_animation !== false);
 </script>
 
 <template>
-  <section v-editable="blok" class="mv-dual-image">
+  <section
+    v-editable="blok"
+    class="mv-dual-image"
+    :class="{ 'mv-dual-image--animate': animate }"
+  >
     <div class="mv-dual-image__pane">
       <MvMedia :src="left" :alt="blok.media_left?.alt || blok.image_left?.alt || ''" class="mv-dual-image__img" />
     </div>
@@ -20,8 +26,7 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
 
 <style scoped>
 .mv-dual-image {
-  position: sticky;
-  top: 6rem;
+  position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -29,6 +34,10 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
   min-height: 560px;
   background: #111;
   overflow: hidden;
+}
+.mv-dual-image--animate {
+  position: sticky;
+  top: 6rem;
 }
 .mv-dual-image__pane {
   position: relative;
@@ -49,6 +58,8 @@ const right = computed(() => mediaUrl(props.blok?.media_right, props.blok?.image
     grid-template-columns: 1fr;
     height: auto;
     min-height: 0;
+  }
+  .mv-dual-image--animate {
     position: relative;
     top: auto;
   }
