@@ -1,13 +1,28 @@
 <script setup>
+import { renderRichText } from '@storyblok/vue';
+
 const props = defineProps({ blok: Object });
 
-const paragraphs = computed(() => {
-  const raw = String(props.blok?.text || '').trim();
-  if (!raw) return [];
-  if (raw.includes('<p')) return [raw];
-  return raw.split(/\n\s*\n/).map(part => part.trim()).filter(Boolean);
+function plainToHtml(raw) {
+  return String(raw || '')
+    .trim()
+    .split(/\n\s*\n/)
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(part => `<p>${part}</p>`)
+    .join('');
+}
+
+const rendered = computed(() => {
+  const text = props.blok?.text;
+  if (!text) return '';
+  if (typeof text === 'object') {
+    return renderRichText(text) || '';
+  }
+  const raw = String(text);
+  if (raw.includes('<p')) return raw;
+  return plainToHtml(raw);
 });
-const html = computed(() => String(props.blok?.text || '').includes('<p'));
 </script>
 
 <template>
@@ -16,10 +31,7 @@ const html = computed(() => String(props.blok?.text || '').includes('<p'));
     class="mv-large-text"
     :class="{ 'mv-large-text--dark': blok.dark_bg }"
   >
-    <div class="mv-large-text__container">
-      <div v-if="html" class="mv-large-text__content" v-html="blok.text" />
-      <p v-for="(paragraph, index) in paragraphs" v-else :key="index">{{ paragraph }}</p>
-    </div>
+    <div v-if="rendered" class="mv-large-text__container" v-html="rendered" />
   </section>
 </template>
 
@@ -35,11 +47,7 @@ const html = computed(() => String(props.blok?.text || '').includes('<p'));
   background: #1a1a1a;
   color: #fff;
 }
-.mv-large-text__container {
-  max-width: none;
-}
-.mv-large-text__content :deep(p),
-.mv-large-text__container > p {
+.mv-large-text__container :deep(p) {
   margin: 0 0 20px;
   font-family: "Libre Caslon Text", "Times New Roman", serif;
   font-size: 40px;
@@ -47,14 +55,22 @@ const html = computed(() => String(props.blok?.text || '').includes('<p'));
   line-height: 50px;
   color: inherit;
 }
-.mv-large-text__container > p:last-child,
-.mv-large-text__content :deep(p:last-child) {
+.mv-large-text__container :deep(p:last-child) {
   margin-bottom: 0;
+}
+.mv-large-text__container :deep(strong) {
+  font-weight: 600;
+}
+.mv-large-text__container :deep(em) {
+  font-style: italic;
+}
+.mv-large-text__container :deep(a) {
+  color: inherit;
+  text-decoration: underline;
 }
 @media (max-width: 768px) {
   .mv-large-text { padding: 48px 20px; }
-  .mv-large-text__content :deep(p),
-  .mv-large-text__container > p {
+  .mv-large-text__container :deep(p) {
     font-size: 28px;
     line-height: 36px;
   }
